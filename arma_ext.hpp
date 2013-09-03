@@ -58,7 +58,6 @@ namespace arma_ext
 	
 	/**
 	 *	@brief	Round operation for scalar value.
-	 *	@note	
 	 *	@param v the given scalar value
 	 *	@return	
 	 */

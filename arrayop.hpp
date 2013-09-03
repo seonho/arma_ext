@@ -197,7 +197,7 @@ namespace arma_ext
 		return mean(vectorise(A));
 	}
 
-	/// padding type
+	/// Padding type
 	enum pad_type : uword  {
 		constant,		///< Pad array with constant value.
 		circular,		///< Pad with circular repetition of elements within the dimension.
@@ -206,7 +206,7 @@ namespace arma_ext
 		symmetric101	///< cb | abc | cb
 	};
 
-	/// padding direction
+	/// Padding direction
 	enum pad_direction : uword {
 		both,		///< Pads before the first element and after the last array element along each dimension.
 		pre,		///< Pad after the last array element along each dimension.
@@ -214,13 +214,14 @@ namespace arma_ext
 	};
 	
 	/**
-	 *	@brief	pads array A with given conditions
+	 *	@brief	Pads array A with given conditions
 	 *	@param A source array
 	 *	@param rows	a row pad size
 	 *	@param cols	a column pad size
 	 *	@param pt	the pad type, see pad_type.
 	 *	@param pd	the pad direction, see pad_direction.
-	 *	@note	only support symmetric101_nobound and both direction
+	 *	@note	This function is preliminary; it is not yet fully optimized.
+	 *			This version only support symmetric101_nobound and both direction
 	 */
 	template <typename T>
 	T padarray(const T& A, uword rows, uword cols, pad_type pt = symmetric101, pad_direction pd = both)

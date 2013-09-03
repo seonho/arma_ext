@@ -180,8 +180,7 @@ namespace arma_ext
 	 *	@return	convolution The result matrix.
 	 *	@see	http://www.mathworks.co.kr/kr/help/matlab/ref/conv2.html
 	 *	@see	convolution_type
-	 *	@note	Currently, support full and same
-	 *			This function is bottle-neck!!
+	 *	@note	This function is preliminary; it is not yet fully optimized.
 	 */
 	template <typename T1, typename T2>
 	inline const Glue<T1, T2, glue_conv2> conv2(const Base<typename T1::elem_type, T1>& A, const Base<typename T1::elem_type, T2>& B, const uword conv_type = full)
