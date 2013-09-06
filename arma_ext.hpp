@@ -38,8 +38,6 @@
 
 #pragma once
 
-#define ARMA_USE_LAPACK					// enable LAPACK
-#define ARMA_USE_BLAS					// enable OpenBLAS
 #define ARMA_NO_DEBUG
 
 #include <armadillo>
@@ -82,6 +80,13 @@ namespace arma_ext
 	static inline unsigned char saturate_cast(int v)
 	{
 		return (unsigned char)((unsigned)v <= std::numeric_limits<unsigned char>::max() ? v : v > 0 ? std::numeric_limits<unsigned char>::max() : 0);
+	}
+
+	template <>
+	static inline unsigned char saturate_cast(float v)
+	{
+		int iv = round<int>(v);
+		return (unsigned char)saturate_cast<unsigned char>(iv); 
 	}
 
 	template <>

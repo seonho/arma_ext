@@ -57,12 +57,13 @@ namespace arma_ext
 	 *			\f$ \bar{A}\f$=mean2(A), and \f$\bar{B}\f$=mean2(B).
 	 *	@see	http://www.mathworks.co.kr/kr/help/images/ref/corr2.html
 	 */
-	template <typename T>
-	double corr2(const T& A, const T& B)
+	template <typename mat_type, typename prec_type>
+	prec_type corr2(const mat_type& A, const mat_type& B)
 	{
-		mat A1, B1;
-		A1 = conv_to<mat>::from(A);
-		B1 = conv_to<mat>::from(B);
+		typedef Mat<prec_type> tmat;
+		tmat A1, B1;
+		A1 = conv_to<tmat>::from(A);
+		B1 = conv_to<tmat>::from(B);
 		A1 -= mean2(A1);
 		B1 -= mean2(B1);
 		return accu(A1 % B1) / sqrt(accu(square(A1)) * accu(square(B1)));

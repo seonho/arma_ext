@@ -176,7 +176,8 @@ namespace arma_ext
 	/**
 	 *	@brief	
 	 */
-	double median2(rowvec x)
+	template <typename vec_type>
+	double median_(const vec_type& x)
 	{
 		/*
 		uvec mask(x.n_cols);
@@ -191,8 +192,8 @@ namespace arma_ext
 	/**
 	 *	@brief	Average or mean of matrix elements
 	 */
-	template <typename T>
-	inline double mean2(const T& A)
+	template <typename mat_type>
+	inline typename mat_type::elem_type mean2(const mat_type& A)
 	{
 		return mean(vectorise(A));
 	}
@@ -203,7 +204,7 @@ namespace arma_ext
 		circular,		///< Pad with circular repetition of elements within the dimension.
 		replicate,		///< Pad by repeating border elements of array.
 		symmetric,		///< Pad array with mirror reflections of itself.
-		symmetric101	///< cb | abc | cb
+		symmetric101	///< edca | abcdefgh | gfedc
 	};
 
 	/// Padding direction

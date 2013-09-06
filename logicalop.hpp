@@ -59,16 +59,20 @@ namespace arma_ext
 	 *	@brief	Array elements that are NaN
 	 *	@returns an array the same sizes as A containing logical 1 (true) where the elements of A are NaNs and logical 0 (false) where they are not.
 	 */
-	template <typename vec_type>
-	uvec isnan(const vec_type& A)
+	uvec isnan(const vec& A)
 	{
 		uvec out(A.size());
-		std::for_each(A.begin(), A.end(), isnan);
+		//std::transform(A.begin(), A.end(), out.begin(), [](double value)->uword { return _isnan(value) > 0 ? 1 : 0; });
+		const double* iptr = A.colptr(0);
+		uword* optr = out.colptr(0);
+		for (uword i = 0 ; i < A.size() ; i++)
+			optr[i] = _isnan(iptr[i]) > 0 ? 1 : 0;
+		
 		return out;
 	}
 
 	/**
-	 *	@brief	
+	 *	@brief	Check scalar value is NaN
 	 */
 	bool isnan(double value)
 	{
