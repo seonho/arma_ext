@@ -68,4 +68,44 @@ namespace arma_ext
 		B1 -= mean2(B1);
 		return accu(A1 % B1) / sqrt(accu(square(A1)) * accu(square(B1)));
 	}
+
+	/**
+	 *	@brief	Distance metric
+	 */
+	enum distance_type : uword {
+		euclidean,		///< Euclidean distance.
+		seuclidean,		///< Standarized Eucliean distance.
+		cityblock,		///< City block metric.
+		minkowski,		///< Minkowski distance. The default exponent is 2.
+		chebychev,		///< Chebychev distance (maximum coordinate difference).
+		mahalanobis,	///< Mahalanobis distance, using the sample covariance of X.
+		cosine,			///< One minus the cosine of the included angle between points(treated as vectors).
+		correlation,	///< One minus the sample correlation between points (treatedas sequences of values).
+		spearman,		///< One minus the sample Spearman's rank correlation betweenobservations (treated as sequences of values).
+		hamming,		///< Hamming distance, which is the percentage of coordinatesthat differ.
+		jaccard			///< One minus the Jaccard coefficient, which is the percentageof nonzero coordinates that differ.
+	};
+
+	/**
+	 *	@brief	Pairwise distance between pairs of objects.<br>
+	 *			Computes the distance between pairs of objects in \f$m\f$-by-\f$n\f$ data matrix \f$X\f$.
+	 *			Rows of \f$X\f$ correspond to observations, and columns correspond to variables.
+	 *			Output is the row vector of length \f$frac{m(m - 1)}{2}\f$, corresponding to pairs of observations in \f$X\f$.
+	 *			The distances are arranged in the order \f$(2, 1), (3, 1), \cdots, (m, 1), (3, 2), \cdots, (m, 2), \cdots, (m, m - 1)\f$.
+	 *			Output is commonly used as a dissimilarity matrix in clustering or multidimensional scailing.
+	 *	@return	Pairwise distance.
+	 */
+	vec pdist(const mat& X, distance_type type = euclidean)
+	{
+		const uword m = X.n_rows;
+		vec Y(m * (m - 1) / 2);
+		double* ptr = Y.colptr(0);
+
+		uword k = 0;
+		for (uword i = 0 ; i < m ; i++)
+			for (uword j = 1 ; j < m ; j++)
+				ptr[k++] = sqrt(sum(square(X.row(j) - X.row(i))));
+
+		return Y;
+	}
 }
