@@ -74,7 +74,7 @@ namespace arma_ext
 	/**
 	 *	@brief	Check scalar value is NaN
 	 */
-	bool isnan(double value)
+	inline bool isnan(double value)
 	{
 		return _isnan(value) > 0 ? true : false;
 	}

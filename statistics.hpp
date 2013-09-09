@@ -58,7 +58,7 @@ namespace arma_ext
 	 *	@see	http://www.mathworks.co.kr/kr/help/images/ref/corr2.html
 	 */
 	template <typename mat_type, typename prec_type>
-	prec_type corr2(const mat_type& A, const mat_type& B)
+	inline prec_type corr2(const mat_type& A, const mat_type& B)
 	{
 		typedef Mat<prec_type> tmat;
 		tmat A1, B1;
@@ -83,8 +83,16 @@ namespace arma_ext
 		correlation,	///< One minus the sample correlation between points (treatedas sequences of values).
 		spearman,		///< One minus the sample Spearman's rank correlation betweenobservations (treated as sequences of values).
 		hamming,		///< Hamming distance, which is the percentage of coordinatesthat differ.
-		jaccard			///< One minus the Jaccard coefficient, which is the percentageof nonzero coordinates that differ.
+		jaccard,		///< One minus the Jaccard coefficient, which is the percentageof nonzero coordinates that differ.
+		custom
 	};
+
+	typedef double (*pdist_func)(const arma::subview_row<double>&, const arma::subview_row<double>&);
+
+	double pdist_euclidean(const arma::subview_row<double>& a, const arma::subview_row<double>& b)
+	{
+		return sqrt(sum(square(b - a)));
+	}
 
 	/**
 	 *	@brief	Pairwise distance between pairs of objects.<br>
@@ -95,16 +103,27 @@ namespace arma_ext
 	 *			Output is commonly used as a dissimilarity matrix in clustering or multidimensional scailing.
 	 *	@return	Pairwise distance.
 	 */
-	vec pdist(const mat& X, distance_type type = euclidean)
+	vec pdist(const mat& X, distance_type type = euclidean, pdist_func func_ptr = nullptr)
 	{
 		const uword m = X.n_rows;
 		vec Y(m * (m - 1) / 2);
 		double* ptr = Y.colptr(0);
 
+		switch (type) {
+		case euclidean:
+			func_ptr = pdist_euclidean;
+			break;
+		case custom:
+			// stub
+			break;
+		default:
+			func_ptr = &pdist_euclidean;
+		}
+
 		uword k = 0;
 		for (uword i = 0 ; i < m ; i++)
-			for (uword j = 1 ; j < m ; j++)
-				ptr[k++] = sqrt(sum(square(X.row(j) - X.row(i))));
+			for (uword j = i + 1 ; j < m ; j++)
+				ptr[k++] = func_ptr(X.row(i), X.row(j)); //sqrt(sum(square(X.row(j) - X.row(i))));
 
 		return Y;
 	}

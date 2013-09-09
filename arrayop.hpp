@@ -55,7 +55,7 @@ namespace arma_ext
 	 *	@return	A vector that contains the sequence.
 	 */
 	template <typename vec_type>
-	inline vec_type sequence(const typename vec_type::pod_type start, const typename vec_type::pod_type interval, const typename vec_type::pod_type end)
+	vec_type sequence(const typename vec_type::pod_type start, const typename vec_type::pod_type interval, const typename vec_type::pod_type end)
 	{
 		typedef typename vec_type::elem_type eT;
 		typedef typename vec_type::pod_type   T;
@@ -90,7 +90,7 @@ namespace arma_ext
 	 *	@return A replicated matrix.
 	 */
 	template <typename T1>
-	inline arma::Mat<T1> repcel(const arma::Mat<T1>& in, const size_type r, const size_type c)
+	arma::Mat<T1> repcel(const arma::Mat<T1>& in, const size_type r, const size_type c)
 	{
 		arma::Mat<T1> out(r * in.n_rows, c * in.n_cols);
 		//for (uword i = 0 ; i < in.n_rows ; i++) {
@@ -174,18 +174,11 @@ namespace arma_ext
 	}
 
 	/**
-	 *	@brief	
+	 *	@brief	Median without NaN
 	 */
 	template <typename vec_type>
-	double median_(const vec_type& x)
+	inline double median_(const vec_type& x)
 	{
-		/*
-		uvec mask(x.n_cols);
-		concurrency::parallel_for(size_type(0), x.n_cols, [&](size_type i) {
-			mask(i) = isnan(x(i)) ? 0 : 1;
-		});
-		*/
-
 		return median(x.elem(find(arma_ext::isnan(x) == 0)));
 	}
 

@@ -51,7 +51,7 @@ namespace arma_ext
 	 *	@brief	
 	 *	@return	
 	 */
-	double rand()
+	inline double rand()
 	{
 		static std::uniform_real_distribution<double> ur;
 		double value = ur(eng);

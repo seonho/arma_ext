@@ -246,8 +246,8 @@ namespace arma_ext
 
 	/**
 	 *	@name Internal functions and definitions for imresize
+	 *	@{
 	 */
-	/// @{
 
 	typedef double (*kernel_func)(double);
 	typedef double (*kernel_func_modified)(kernel_func, double, double);
@@ -369,7 +369,7 @@ namespace arma_ext
 	}
 
 	template <typename eT>
-	arma::Mat<eT> resizeAlongDim(const arma::Mat<eT> in, size_t dim, const arma::mat& weights, const arma::mat& indices)
+	inline arma::Mat<eT> resizeAlongDim(const arma::Mat<eT> in, size_t dim, const arma::mat& weights, const arma::mat& indices)
 	{
 		return imresizemex<uchar>(in, weights.t(), indices.t(), dim);
 	}
@@ -413,7 +413,7 @@ namespace arma_ext
 		return out;
 	}
 
-	/// @}
+	/**@}*/
 
 	/**
 	 *	@brief	Resize image

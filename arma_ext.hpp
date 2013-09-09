@@ -102,3 +102,4 @@ namespace arma_ext
 #include "imresize.hpp"
 #include "random.hpp"
 #include "statistics.hpp"
+#include "hierarchical_clustering.hpp"
