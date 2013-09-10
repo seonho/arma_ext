@@ -103,3 +103,4 @@ namespace arma_ext
 #include "random.hpp"
 #include "statistics.hpp"
 #include "hierarchical_clustering.hpp"
+#include "fn_accu_ext.hpp"
