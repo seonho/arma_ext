@@ -336,7 +336,7 @@ namespace arma_ext
 		// Normalize the weights matrix so that each row sums to 1.
 		for (uword i = 0 ; i < weights.n_rows ; i++)
 		//concurrency::parallel_for(uword(0), weights.n_rows, [&](uword i) {
-			weights.row(i) /= arma::as_scalar(sum(weights.row(i)));
+			weights.row(i) /= sum(weights.row(i));
 		//});
 
 		// Clamp out-of-range indices; has the effect of replicating end-points.
