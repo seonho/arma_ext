@@ -393,17 +393,19 @@ namespace arma_ext
 
 		if (dim == 1)
 			in = in.t();
-		
+
 		Concurrency::parallel_for(uword(0), out.n_cols, [&](uword c) {
 		//for (uword c = 0 ; c < out.n_cols ; c++) {
+			eT* optr = out.colptr(c);
 			for (uword r = 0 ; r < out.n_rows ; r++) {
 				double value = 0;
+				double* wptr = weights.colptr(r);
+				double* iptr = indices.colptr(r);
 
-				for (uword p = 0 ; p < weights.n_rows ; p++) {
-					value += weights(p, r) * in((uword)indices(p, r) - 1, c);
-				}
+				for (uword p = 0 ; p < weights.n_rows ; p++)
+					value += wptr[p] * in((uword)iptr[p] - 1, c);
 
-				out(r, c) = saturate_cast<eT>(value);
+				optr[r] = saturate_cast<eT>(value);
 			}
 		//}
 		});
