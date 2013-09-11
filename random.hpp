@@ -61,9 +61,9 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Uniformly distributed pseudorandom numbers.
-	 *	@param rows number of rows.
-	 *	@param cols number of columns.
-	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval (0, 1).
+	 *	@param rows the number of rows.
+	 *	@param cols the number of columns.
+	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
 	template <typename mat_type>
 	inline mat_type rand(const size_type rows, const size_type cols)
@@ -85,7 +85,7 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Overloaded function for rand.
-	 *	@return A n-by-n matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval (0, 1).
+	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
 	template <typename mat_type>
 	inline mat_type rand(const size_type n)
@@ -118,7 +118,7 @@ namespace arma_ext
 	/**
 	 *	@brief	Random permutation.
 	 *	@param n number of values.
-	 *	@return	A row vector containing a random permutation of the integer from 0 to (n - 1) inclusive.
+	 *	@return	A row vector containing a random permutation of the integer from \f$0\f$ to \f$(n - 1)\f$ inclusive.
 	 */
 	uvec randperm(size_type n)
 	{
@@ -138,16 +138,23 @@ namespace arma_ext
 		return out;
 	}
 
-	uvec randvalues(const uvec& in, uword k)
+	/**
+	 *	@brief	Random permutation with a given vector
+	 *	@param in	The input vector
+	 *	@param k	The maximum number of elements of the vector to be returned.
+	 *	@return Permuted vector
+	 */
+	template <typename T>
+	Col<T> randvalues(const Col<T>& in, uword k)
 	{
-		uvec out;
+		Col<T> out;
 
 		uword N = in.n_elem;
 
 		if (k > N) k = N;
 
 		if ((double)k / N < 0.0001) {
-			uvec i1 = conv_to<uvec>::from(arma::unique(arma::ceil(N * rand<vec>(k))));
+			Col<T> i1 = conv_to<Col<T>>::from(arma::unique(arma::ceil(N * rand<vec>(k))));
 			out = in.elem(i1);
 		} else {
 			uvec i2 = randperm(N);

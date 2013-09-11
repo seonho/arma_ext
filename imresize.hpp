@@ -151,7 +151,7 @@ namespace arma_ext
 
 			switch (X.aux_uword) {
 			case full:
-				// do thing
+				// do nothing
 				break;
 			case valid:
 				out = out(span(mb - 1,ma - 1), span(nb - 1,na - 1));
@@ -174,9 +174,9 @@ namespace arma_ext
 	/**
 	 *	@brief	2-D convolution of matrices A and B.<br>
 	 *			
-	 *	@param A The input matrix.
-	 *	@param B The convolution kernel matrix.
-	 *	@param conv_type the convolution type
+	 *	@param A			The input matrix.
+	 *	@param B			The convolution kernel matrix.
+	 *	@param conv_type	The convolution type
 	 *	@return	convolution The result matrix.
 	 *	@see	http://www.mathworks.co.kr/kr/help/matlab/ref/conv2.html
 	 *	@see	convolution_type

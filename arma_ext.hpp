@@ -52,7 +52,7 @@ namespace arma_ext
 	/**
 	 *	@brief	Round operation for scalar value.
 	 *	@param v the given scalar value
-	 *	@return	
+	 *	@return	 the rounded value
 	 */
 	template <typename T>
 	inline T round(const double& v)

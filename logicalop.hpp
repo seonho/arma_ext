@@ -57,6 +57,7 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Array elements that are NaN
+	 *	@param A An input vector
 	 *	@returns an array the same sizes as A containing logical 1 (true) where the elements of A are NaNs and logical 0 (false) where they are not.
 	 */
 	uvec isnan(const vec& A)
@@ -73,6 +74,8 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Check scalar value is NaN
+	 *	@param value the scalar value
+	 *	@return true/false
 	 */
 	inline bool isnan(double value)
 	{

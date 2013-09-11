@@ -89,6 +89,7 @@ namespace arma_ext
 
 	typedef double (*pdist_func)(const arma::subview_row<double>&, const arma::subview_row<double>&);
 
+	/// Euclidean distance for pdist
 	double pdist_euclidean(const arma::subview_row<double>& a, const arma::subview_row<double>& b)
 	{
 		return sqrt(sum(square(b - a)));

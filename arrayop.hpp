@@ -49,9 +49,9 @@ namespace arma_ext
 	/**
 	 *	@brief	An implementation of MATLAB's colon operator start:invertal:end.
 	 *			Create a vector contains [start, start + interval, ..., start + m * interval], where m = floor((end - start) / interval).
-	 *	@param start start value
+	 *	@param start	the first value
 	 *	@param interval interval
-	 *	@param end end value
+	 *	@param end		the last value
 	 *	@return	A vector that contains the sequence.
 	 */
 	template <typename vec_type>
@@ -84,10 +84,10 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Repeats cells m x n times.
-	 *	@param	in The input matrix.
-	 *	@param	r The number of rows.
-	 *	@param	c The number of columns.
-	 *	@return A replicated matrix.
+	 *	@param	in	The input matrix.
+	 *	@param	r	The number of rows.
+	 *	@param	c	The number of columns.
+	 *	@return A	replicated matrix.
 	 */
 	template <typename T1>
 	arma::Mat<T1> repcel(const arma::Mat<T1>& in, const size_type r, const size_type c)
@@ -105,6 +105,8 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Computes all possible ntuples
+	 *	@param x	A vector of the tuple element 1
+	 *	@param y	A vector of the tuple element 2
 	 */
 	template <typename vec_type>
 	inline arma::Mat<typename vec_type::elem_type> ntuples(const vec_type& x, const vec_type& y)
@@ -155,10 +157,10 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Convert subscripts to linear indices.
-	 *	@param rows	matrix row size
-	 *	@param cols	matrix column size
-	 *	@param r	row subscript
-	 *	@param c	column subscript
+	 *	@param rows	the row size of matrix
+	 *	@param cols	the column size of matrix
+	 *	@param r	the row subscript
+	 *	@param c	the column subscript
 	 *	@return	the linear index equivalent to the row and column subscript @c r and @c c for a matrix of size @c rows and @c cols.
 	 */
 	inline size_type sub2ind(size_type rows, size_type cols, size_type r, size_type c)
@@ -167,7 +169,7 @@ namespace arma_ext
 		return r + rows * c;
 	}
 
-	// template function specialization for double type
+	/// template function specialization for double type
 	inline size_type sub2ind(double rows, double cols, double r, double c)
 	{
 		return sub2ind(round<size_type>(rows), round<size_type>(cols), round<size_type>(r), round<size_type>(c));
@@ -175,6 +177,7 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Median without NaN
+	 *	@param x a vector or a matrix
 	 */
 	template <typename vec_type>
 	inline double median_(const vec_type& x)
@@ -184,6 +187,7 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Average or mean of matrix elements
+	 *	@param A An input matrix
 	 */
 	template <typename mat_type>
 	inline typename mat_type::elem_type mean2(const mat_type& A)
