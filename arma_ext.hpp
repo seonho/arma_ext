@@ -38,12 +38,7 @@
 
 #pragma once
 
-#define ARMA_NO_DEBUG
-
 #include <armadillo>
-#pragma comment(lib, "lapack_win32_MT")	// link LAPACK
-#pragma comment(lib, "blas_win32_MT")
-//#pragma comment(lib, "libopenblas")		// link OpenBLAS
 
 /**
  *	@brief	An extension of armadillo library for MATLAB interface functions.
