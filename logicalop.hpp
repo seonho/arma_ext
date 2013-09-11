@@ -63,8 +63,8 @@ namespace arma_ext
 	{
 		uvec out(A.size());
 		//std::transform(A.begin(), A.end(), out.begin(), [](double value)->uword { return _isnan(value) > 0 ? 1 : 0; });
-		const double* iptr = A.colptr(0);
-		uword* optr = out.colptr(0);
+		const double* iptr = A.memptr();
+		uword* optr = out.memptr();
 		for (uword i = 0 ; i < A.size() ; i++)
 			optr[i] = _isnan(iptr[i]) > 0 ? 1 : 0;
 		

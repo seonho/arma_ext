@@ -107,7 +107,7 @@ namespace arma_ext
 	{
 		const uword m = X.n_rows;
 		vec Y(m * (m - 1) / 2);
-		double* ptr = Y.colptr(0);
+		double* ptr = Y.memptr();
 
 		switch (type) {
 		case euclidean:

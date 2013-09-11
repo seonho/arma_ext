@@ -178,7 +178,7 @@ namespace arma_ext
 		m = (mwSize)std::ceil(std::sqrt(2.0 * n));	/* size of distance matrix --> m = (1 + sqrt(1+8*n))/2 */
 
 		/*  create a pointer to the input pairwise distances */
-		yi = const_cast<double*>(X.colptr(0));
+		yi = const_cast<double*>(X.memptr());
 
 		/* set space to copy the input */
 		y = (TEMPL *) malloc(n * sizeof(TEMPL));
@@ -199,7 +199,7 @@ namespace arma_ext
 
 		/*  allocate space for the output matrix  */
 		mat out(bn, 3);
-		b1 = out.colptr(0);	/*leftmost  column */
+		b1 = out.memptr();	/*leftmost  column */
 		b2 = b1 + bn;		/*center    column */
 		s = b2 + bn;		/*rightmost column */
 
