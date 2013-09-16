@@ -77,7 +77,7 @@ namespace arma_ext
 					for (uword k = 0 ; k < ti.n_elem ; k++) {
 						uword tval = ti(k);
 						uword childval = child(k) - 1;	// 0-based indexing
-						cdone(tval, j) = todo(childval) ? 0 : 1;
+						cdone(tval, j) = not(todo(childval));
 						conn(rows(tval)) = conn(rows(tval)) & conn(childval);
 					}
 				}
@@ -109,7 +109,7 @@ namespace arma_ext
 		while (any(todo)) {
 			// Work on rows that are now split but not yet processed
 			// rows = find(todo & ~conn);
-			uvec rows = find(todo % (ones<uvec>(n) - conn));
+			uvec rows = find(todo % not(conn));
 			if (rows.empty()) break;
 
 			for (uword j = 0 ; j < 2 ; j++) {	// 0: left, 1: right
@@ -125,7 +125,7 @@ namespace arma_ext
 				}
 
 				// Also assign it to both children of any joined child non-leaf nodes
-				uvec joint = ones<uvec>(n) - leaf;	// ~leaf
+				uvec joint = not(leaf);	// ~leaf
 				uvec jointi = find(joint);
 				joint(jointi) = conn(children(jointi) - nleaves - 1);
 
@@ -133,7 +133,7 @@ namespace arma_ext
 					std::for_each(jointi.begin(), jointi.end(), [&](uword index) {
 						uword clustnum = clustlist(rows(index), j);
 						uword childnum = children(index) - nleaves - 1;
-						clustlist.row(childnum - 1).fill(clustnum);
+						clustlist.row(childnum).fill(clustnum);
 						conn(childnum) = 0;
 					});
 				}

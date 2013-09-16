@@ -64,4 +64,25 @@ arma::accu_proxy_linear(const Proxy<subview_row<double> >& P)
 	return val;
 }
 
+//template<>
+//inline
+//double
+//arma::op_mean::direct_mean(const Mat<double>& X, const uword row)
+//{
+//	arma_extra_debug_sigprint();
+//
+//	typedef get_pod_type<double>::result T;
+//
+//	const uword X_n_cols = X.n_cols;
+//
+//	double val = double(0);
+//
+//	for(uword i = 0; i < X_n_cols; i++)
+//		val += X.at(row,i);
+//
+//	const double result = val / T(X_n_cols);
+//
+//	return arma_isfinite(result) ? result : op_mean::direct_mean_robust(X, row);
+//}
+
 #endif

@@ -357,14 +357,14 @@ namespace arma_ext
 
 		if (arma::all(alive) == 0) {
 			alive = find(alive);
-			concurrency::parallel_invoke(	// parallel task launch
-				[&] {
+			//concurrency::parallel_invoke(	// parallel task launch
+			//	[&] {
 					weights = weights.cols(alive);
-				},
-				[&] {
+			//	},
+			//	[&] {
 					indices = indices.cols(alive);
-				}
-			);
+			//	}
+			//);
 		}
 	}
 

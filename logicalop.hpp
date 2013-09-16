@@ -81,4 +81,22 @@ namespace arma_ext
 	{
 		return _isnan(value) > 0 ? true : false;
 	}
+	
+	/**
+	 *	@brief	Find logical NOT of array or scalar input.
+	 *	@param A An array or a scalar input.<br> input type should be uvec or umat or uword
+	 *	@return A logical NOT of input array or scalar @c A.
+	 */
+	template <typename mat_type>
+	inline mat_type not(const mat_type& A)
+	{
+		return ones<mat_type>(A.n_elem) - A;
+	}
+
+	/// Template function speicialization for #not.
+	template <>
+	inline uword not(const uword& A)
+	{
+		return (1 - A);
+	}
 }
