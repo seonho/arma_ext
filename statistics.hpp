@@ -99,7 +99,7 @@ namespace arma_ext
 	 *	@brief	Pairwise distance between pairs of objects.<br>
 	 *			Computes the distance between pairs of objects in \f$m\f$-by-\f$n\f$ data matrix \f$X\f$.
 	 *			Rows of \f$X\f$ correspond to observations, and columns correspond to variables.
-	 *			Output is the row vector of length \f$frac{m(m - 1)}{2}\f$, corresponding to pairs of observations in \f$X\f$.
+	 *			Output is the row vector of length \f$ \frac{m(m - 1)}{2} \f$, corresponding to pairs of observations in \f$X\f$.
 	 *			The distances are arranged in the order \f$(2, 1), (3, 1), \cdots, (m, 1), (3, 2), \cdots, (m, 2), \cdots, (m, m - 1)\f$.
 	 *			Output is commonly used as a dissimilarity matrix in clustering or multidimensional scailing.
 	 *	@return	Pairwise distance.
