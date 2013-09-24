@@ -62,7 +62,7 @@ namespace arma_ext
 
 		vec_type x;
 
-		if (std::abs((double)end - start) / interval < 0) return x;
+		if (((double)end - start) / interval < 0) return x;
 
 		x.set_size(uword(std::floor((end - start) / (double)interval)) + 1);
 		eT* x_mem = x.memptr();
@@ -195,13 +195,12 @@ namespace arma_ext
 		return mean(vectorise(A));
 	}
 
-	/// Padding type
-	enum pad_type : uword  {
+	/// Padding method
+	enum pad_method : uword  {
 		constant,		///< Pad array with constant value.
 		circular,		///< Pad with circular repetition of elements within the dimension.
 		replicate,		///< Pad by repeating border elements of array.
-		symmetric,		///< Pad array with mirror reflections of itself.
-		symmetric101	///< edca | abcdefgh | gfedc
+		symmetric		///< Pad array with mirror reflections of itself.
 	};
 
 	/// Padding direction
@@ -210,43 +209,234 @@ namespace arma_ext
 		pre,		///< Pad after the last array element along each dimension.
 		post		///< Pad before the first element along each dimension.
 	};
-	
+		
 	/**
-	 *	@brief	Pads array A with given conditions
-	 *	@param A source array
-	 *	@param rows	a row pad size
-	 *	@param cols	a column pad size
-	 *	@param pt	the pad type, see pad_type.
-	 *	@param pd	the pad direction, see pad_direction.
-	 *	@note	This function is preliminary; it is not yet fully optimized.
-	 *			This version only support symmetric101_nobound and both direction
+	 *	@brief	Pads array A with @c padsize (rows, cols) number of zeros along the k-th dimension of A. @c padsize should be a nonnegative integers.
+	 *	@param A			The source array.
+	 *	@param rows			A row pad size.
+	 *	@param cols			A column pad size.
+	 *	@return	Padded array.
 	 */
 	template <typename T>
-	T padarray(const T& A, uword rows, uword cols, pad_type pt = symmetric101, pad_direction pd = both)
+	T padarray(const T& A, uword rows, uword cols)
+	{
+		typedef T::elem_type elem_type;
+		return constantpad(A, rows, cols, elem_type(0), both);
+	}
+
+	/**
+	 *	@brief	Pads array A with @c padval (a scalar) instead of with zeros in the direction specified by the @c direction.
+	 *	@param A			The source array.
+	 *	@param rows			A row pad size.
+	 *	@param cols			A column pad size.
+	 *	@param padval		A scalar value.
+	 *	@param direction	The pad direction, see #pad_direction. By default, direction is 'both'.
+	 *	@return	Padded array.
+	 */
+	template <typename T>
+	T padarray(const T& A, uword rows, uword cols, typename T::elem_type padval, pad_direction direction = both)
+	{
+		return constantpad(A, rows, cols, padval, direction);
+	}
+
+	/**
+	 *	@brief	Pads array A with using the specified @c method and @c direction.
+	 *	@param A			The source array.
+	 *	@param rows			A row pad size.
+	 *	@param cols			A column pad size.
+	 *	@param method		The pad method, see #pad_method.
+	 *	@param direction	The pad direction, see #pad_direction.
+	 *	@return	Padded array.
+	 */
+	template <typename T>
+	T padarray(const T& A, uword rows, uword cols, pad_method method, pad_direction direction)
 	{
 		typedef T::elem_type elem_type;
 		const uword size = sizeof(elem_type);
 
-		T out(A.n_rows + rows * 2, A.n_cols + cols * 2);
-		
-		// copy submatrix
-		out(span(rows, A.n_rows + rows - 1), span(cols, A.n_cols + cols - 1)) = A;
-		
-		// pad array - horizontal
-		concurrency::parallel_for(uword(0), cols, [&](uword i) {
-			memcpy(out.colptr(i) + rows, A.colptr(cols - i), size * A.n_rows);
-			memcpy(out.colptr(A.n_cols + i) + rows, A.colptr(cols - i), size * A.n_rows);
-		});
+		if (method == constant)
+			return constantpad(A, rows, cols, elem_type(0), direction);
 
-		// pad - vertical
-		const uword post0 = A.n_rows + rows;
-		concurrency::parallel_for(uword(0), out.n_cols, [&](uword i) {
-			elem_type* ptr = out.colptr(i);
-			for (uword j = 0 ; j < rows ; j++)
-				ptr[j] = ptr[post0 + j] = ptr[rows * 2 - i];
-		});
+		T out;
+		arma::field<uvec> indices = getPaddingIndices(A, rows, cols, method, direction);
+
+		uvec ri = indices(0), ci = indices(1);
+		out.set_size(ri.n_elem, ci.n_elem);
+
+		const uword colsize = size * A.n_rows;
+		uword offset = (direction == post) ? 0 : rows;
 		
+		for (uword c = 0 ; c < ci.n_elem ; c++)
+			memcpy(out.colptr(c) + offset, A.colptr(ci[c]), colsize);
+
+		uvec copyflag;
+		switch (direction) {
+		case pre:
+			copyflag = join_cols(ones<uvec>(rows, 1), zeros<uvec>(A.n_rows, 1));
+			break;
+		case post:
+			copyflag = join_cols(zeros<uvec>(A.n_rows, 1), ones<uvec>(rows, 1));
+			break;
+		case both:
+			copyflag = join_cols(join_cols(ones<uvec>(rows, 1), zeros<uvec>(A.n_rows, 1)), ones<uvec>(rows, 1));
+			break;
+		}
+
+		for (uword r = 0 ; r < ri.n_elem ; r++) {
+			if (copyflag[r])
+				out.row(r) = out.row(ri[r] + offset);
+		}
+
 		return out;
+	}
+
+	/// internal function
+	template <typename T>
+	T constantpad(const T& A, uword rows, uword cols, typename T::elem_type padval, pad_direction direction)
+	{
+		typedef T::elem_type elem_type;
+		const uword size = sizeof(elem_type);
+
+		T out;
+
+		switch (direction) {
+		case both:
+			out.set_size(A.n_rows + rows * 2, A.n_cols + cols * 2);
+			out.fill(padval);
+			out(span(rows, A.n_rows + rows - 1), span(cols, A.n_cols + cols - 1)) = A;
+			break;
+		case pre:
+			out.set_size(A.n_rows + rows, A.n_cols + cols);
+			out.fill(padval);
+			out(span(rows, A.n_rows + rows - 1), span(cols, A.n_cols + cols - 1)) = A;
+			break;
+		case post:
+			out.set_size(A.n_rows + rows, A.n_cols + cols);
+			out.fill(padval);
+			out(span(0, A.n_rows - 1), span(0, A.n_cols - 1)) = A;
+			break;
+		default:
+			// throw exception
+			throw std::invalid_argument("direction is invalid");
+		}
+
+		return out;
+	}
+
+	template <typename T>
+	arma::field<arma::uvec> getPaddingIndices(const T& A, uword rows, uword cols, pad_method method, pad_direction direction)
+	{
+		switch (method) {
+		case circular:
+			return circularpad(A, rows, cols, direction);
+		case symmetric:
+			return symmetricpad(A, rows, cols, direction);
+		case replicate:
+			return replicatepad(A, rows, cols, direction);
+		}
+
+		return arma::field<arma::uvec>();
+	}
+
+	/// Modulus after division
+	template <typename vec_type>
+	inline vec_type mod(const vec_type& X, typename vec_type::elem_type Y)
+	{
+		typedef vec_type::elem_type elem_type;
+		assert(Y != 0);
+		
+		vec_type M;
+		switch (X.vec_state) {
+		case 0: // matrix
+			M = X - arma::conv_to<vec_type>::from(arma::floor(arma::conv_to<mat>::from(X) / (double)Y)) * Y;
+			break;
+		case 1:
+		case 2:
+			M = X - arma::conv_to<vec_type>::from(arma::floor(arma::conv_to<vec>::from(X) / (double)Y)) * Y;
+			break;
+		}
+		
+		return M;
+	}
+
+	template <typename T>
+	arma::field<arma::uvec> circularpad(const T& A, uword rows, uword cols, pad_direction direction)
+	{
+		arma::field<arma::uvec> indices(2);
+		int M, p;
+
+		for (uword k = 0 ; k < 2 ; k++) {
+			p = (k == 0) ? (int)rows : (int)cols;
+			M = (k == 0) ? A.n_rows : A.n_cols;
+
+			switch (direction) {
+			case pre:
+				indices(k) = arma::conv_to<uvec>::from(mod(sequence<ivec>(-p, M - 1), M));
+				break;
+			case post:
+				indices(k) = arma::conv_to<uvec>::from(mod(sequence<ivec>(0, M + p - 1), M));
+				break;
+			case both:
+				indices(k) = arma::conv_to<uvec>::from(mod(sequence<ivec>(-p, M + p - 1), M));
+				break;
+			}
+		}
+
+		return indices;
+	}
+
+	template <typename T>
+	arma::field<arma::uvec> symmetricpad(const T& A, uword rows, uword cols, pad_direction direction)
+	{
+		arma::field<arma::uvec> indices(2);
+		int M, p;
+
+		for (uword k = 0 ; k < 2 ; k++) {
+			p = (k == 0) ? (int)rows : (int)cols;
+			M = (k == 0) ? A.n_rows : A.n_cols;
+
+			arma::uvec dimNum = arma::conv_to<uvec>::from(arma::join_cols(sequence<ivec>(0, M - 1), sequence<ivec>(M - 1, -1, 0)));
+
+			switch (direction) {
+			case pre:
+				indices(k) = dimNum.elem(arma::conv_to<uvec>::from(mod(sequence<ivec>(-p, M - 1), 2 * M)));
+				break;
+			case post:
+				indices(k) = dimNum.elem(arma::conv_to<uvec>::from(mod(sequence<ivec>(0, M + p - 1), 2 * M)));
+				break;
+			case both:
+				indices(k) = dimNum.elem(arma::conv_to<uvec>::from(mod(sequence<ivec>(-p, M + p - 1), 2 * M)));
+				break;
+			}
+		}
+
+		return indices;
+	}
+
+	template <typename T>
+	arma::field<arma::uvec> replicatepad(const T& A, uword rows, uword cols, pad_direction direction)
+	{
+		arma::field<arma::uvec> indices(2);
+		int M, p;
+
+		for (uword k = 0 ; k < 2 ; k++) {
+			p = (k == 0) ? (int)rows : (int)cols;
+			M = (k == 0) ? A.n_rows : A.n_cols;
+
+			switch (direction) {
+			case pre:
+				indices(k) = join_cols(zeros<uvec>(p, 1), sequence<uvec>(0, M - 1));
+				break;
+			case post:
+				indices(k) = join_cols(sequence<uvec>(0, M - 1), ones<uvec>(rows, 1) * (M - 1));
+				break;
+			case both:
+				indices(k) = join_cols(join_cols(zeros<uvec>(p, 1), sequence<uvec>(0, M - 1)), ones<uvec>(p, 1) * (M - 1));
+				break;
+			}
+		}
+
+		return indices;
 	}
 }
 
