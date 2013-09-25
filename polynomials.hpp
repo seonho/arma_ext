@@ -45,9 +45,22 @@ namespace arma_ext
 	using namespace arma;
 	
 	/**
-	 *	@brief	Polynomial roots.
-	 *	@param c The polynomial coefficient vector.
-	 *	@return	A column vector whose elements are the roots of the polynomial @c c.
+	 	@brief	Polynomial roots.<br>
+				<br>
+				The polynomial \f$s^3 - 6s^2 - 72s - 27\f$ is given then, the roots of this polynomial are returned in a column vector.
+		
+				@code
+					vec p = "1 -6 -72 -27";
+					cx_vec r = roots(p);
+					real(r).print("r = "); // the polynomial p has real roots.
+				@endcode
+				
+				The output is
+				\f$ r = \begin{matrix} 12.1229 \\ -5.7345 \\ -0.3884 \end{matrix} \f$
+
+	 	@param c The polynomial coefficient vector.
+	 	@return	A column vector whose elements are the roots of the polynomial @c c.
+		
 	 */
 	template <typename vec_type>
 	cx_vec roots(const vec_type& c)
