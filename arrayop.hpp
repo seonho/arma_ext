@@ -438,6 +438,26 @@ namespace arma_ext
 
 		return indices;
 	}
+
+	/**
+	 *	@brief	Diagonal matrices and diagonals of matrix.
+	 *	@param v The input vector.
+	 *	@param k The diagonal index.
+	 *	@return	A square matrix of order \f$n+abs(k)$f\, with the elements of \f$v\f$ on the \f$k\f$th diagonal.<br>
+	 *			\f$k=0\f$ represents the main diagonal, \f$k>0\f$ above the main diagonal, and \f$k<0\f$ below the main diagonal.
+	 *	@note	This function is preliminary; it is not yet fully implemented.
+	 */
+	template <typename vec_type>
+	Mat<typename vec_type::elem_type> diag(const vec_type& v , int k = 0)
+	{
+		typedef vec_type::elem_type elem_type;
+		typedef Mat<typename elem_type> mat_type;
+
+		const uword n = (v.is_col ? v.n_rows : v.n_cols) + (uword)abs(k);
+		mat_type X = zeros<mat_type>(n, n);
+		X.diag(k) = v;
+		return X;
+	}
 }
 
 #include "arrayop_ext.hpp"	// for handling conv_to::from
