@@ -1,5 +1,5 @@
 /**
- *	@file		fn_accu_ext.hpp
+ *	@file		fix_arrayop.hpp
  *	@brief		An implemenation of template function specialization of arma::arrayop::convert
  *	@author		seonho.oh@gmail.com
  *	@date		2013-07-01
@@ -42,47 +42,18 @@
 
 #ifndef DOXYGEN
 
-/// Template function specialization for double accumulation
-template <>
-arma_hot
-inline
-double
-arma::accu_proxy_linear(const Proxy<subview_row<double> >& P)
+/// Template function specialization of convert function used in conv_to class
+template<>
+arma_hot inline static void arma::arrayops::convert(unsigned char* dest, const double* src, const uword n_elem)
 {
-	typedef subview_row<double>::elem_type      eT;
-	typedef Proxy<subview_row<double> >::ea_type ea_type;
+	uword i, j;
+	for (i = 0, j = 1 ; j < n_elem ; i+=2, j+=2) {
+		dest[i] = arma_ext::saturate_cast<unsigned char>(src[i]);
+		dest[j] = arma_ext::saturate_cast<unsigned char>(src[j]);
+	}
 
-	ea_type A      = P.get_ea();
-	const uword   n_elem = P.get_n_elem();
-
-	eT val = eT(0);
-
-	uword i;
-	for(i=0 ; i < n_elem; i++)
-		val += A[i];
-		
-	return val;
+	if (i < n_elem)
+		dest[i] = arma_ext::saturate_cast<unsigned char>(src[i]);
 }
-
-//template<>
-//inline
-//double
-//arma::op_mean::direct_mean(const Mat<double>& X, const uword row)
-//{
-//	arma_extra_debug_sigprint();
-//
-//	typedef get_pod_type<double>::result T;
-//
-//	const uword X_n_cols = X.n_cols;
-//
-//	double val = double(0);
-//
-//	for(uword i = 0; i < X_n_cols; i++)
-//		val += X.at(row,i);
-//
-//	const double result = val / T(X_n_cols);
-//
-//	return arma_isfinite(result) ? result : op_mean::direct_mean_robust(X, row);
-//}
 
 #endif

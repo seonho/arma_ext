@@ -460,4 +460,4 @@ namespace arma_ext
 	}
 }
 
-#include "arrayop_ext.hpp"	// for handling conv_to::from
+#include "fix_arrayop.hpp"	// for handling conv_to::from

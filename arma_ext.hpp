@@ -98,5 +98,7 @@ namespace arma_ext
 #include "random.hpp"
 #include "statistics.hpp"
 #include "hierarchical_clustering.hpp"
-#include "fn_accu_ext.hpp"
+#include "fix_fn_accu.hpp"
 #include "polynomials.hpp"
+#include "matrix_analysis.hpp"
+#include "fix_op_dot.hpp"

@@ -1,8 +1,8 @@
 /**
- *	@file		arrayop_ext.hpp
- *	@brief		An implemenation of template function specialization of arma::arrayop::convert
+ *	@file		fix_op_dot.hpp
+ *	@brief		An implemenation of template function specialization of arma::op_dot::dot_and_copy_row
  *	@author		seonho.oh@gmail.com
- *	@date		2013-07-01
+ *	@date		2013-10-07
  *	@version	1.0
  *
  *	@section	LICENSE
@@ -42,18 +42,22 @@
 
 #ifndef DOXYGEN
 
-/// Template function specialization of convert function used in conv_to class
+/// Template function specialization for double, mat
 template<>
-arma_hot inline static void arma::arrayops::convert(unsigned char* dest, const double* src, const uword n_elem)
+arma_hot
+inline
+double
+arma::op_dot::dot_and_copy_row(double* out, const mat& A, const uword row, const double* B_mem, const uword N)
 {
-	uword i, j;
-	for (i = 0, j = 1 ; j < n_elem ; i+=2, j+=2) {
-		dest[i] = arma_ext::saturate_cast<unsigned char>(src[i]);
-		dest[j] = arma_ext::saturate_cast<unsigned char>(src[j]);
+	double acc = double(0);
+
+	for(uword i = 0; i < N; i++) {
+		const double val = A.at(row, i);
+		out[i] = val;
+		acc += val * B_mem[i];
 	}
 
-	if (i < n_elem)
-		dest[i] = arma_ext::saturate_cast<unsigned char>(src[i]);
+	return acc;
 }
 
 #endif
