@@ -1,6 +1,6 @@
 /**
  *	@file		fix_op_dot.hpp
- *	@brief		An implemenation of template function specialization of arma::op_dot::dot_and_copy_row
+ *	@brief		Specializes template function arma::op_dot::dot_and_copy_row
  *	@author		seonho.oh@gmail.com
  *	@date		2013-10-07
  *	@version	1.0

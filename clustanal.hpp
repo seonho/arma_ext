@@ -1,6 +1,6 @@
 /**
- *	@file		hierarchical_clustering.hpp
- *	@brief		Produce nested sets of clusters
+ *	@file		clustanal.hpp
+ *	@brief		Clustering functions for data analysis
  *	@author		seonho.oh@gmail.com
  *	@date		2013-07-01
  *	@version	1.0
@@ -38,11 +38,86 @@
 
 #pragma once
 
+//!	@defgroup	clustanal	Cluster Analysis
+//!	@brief		Find natural groupings in data
+//!	@{
+//!		@defgroup	hierclust	Hierarchical Clustering
+//!		@brief		Produce nested sets of clusters
+//!	@}
+
+#pragma once
+
 #include <armadillo>
 
 namespace arma_ext
 {
 	using namespace arma;
+
+	//!	@addtogroup	hierclust
+	//!	@{
+
+	/**
+	 *	@brief	Distance metric
+	 */
+	enum distance_type : uword {
+		euclidean,		///< Euclidean distance.
+		seuclidean,		///< Standarized Eucliean distance.
+		cityblock,		///< City block metric.
+		minkowski,		///< Minkowski distance. The default exponent is 2.
+		chebychev,		///< Chebychev distance (maximum coordinate difference).
+		mahalanobis,	///< Mahalanobis distance, using the sample covariance of X.
+		cosine,			///< One minus the cosine of the included angle between points(treated as vectors).
+		correlation,	///< One minus the sample correlation between points (treatedas sequences of values).
+		spearman,		///< One minus the sample Spearman's rank correlation betweenobservations (treated as sequences of values).
+		hamming,		///< Hamming distance, which is the percentage of coordinatesthat differ.
+		jaccard,		///< One minus the Jaccard coefficient, which is the percentageof nonzero coordinates that differ.
+		custom
+	};
+
+#ifndef DOXYGEN
+	typedef double (*pdist_func)(const arma::subview_row<double>&, const arma::subview_row<double>&);
+
+	/// Euclidean distance for pdist
+	double pdist_euclidean(const arma::subview_row<double>& a, const arma::subview_row<double>& b)
+	{
+		return sqrt(sum(square(b - a)));
+	}
+#endif
+
+	/**
+	 *	@brief	Pairwise distance between pairs of objects.<br>
+	 *			Computes the distance between pairs of objects in \f$m\f$-by-\f$n\f$ data matrix \f$X\f$.<br>
+	 *			Rows of \f$X\f$ correspond to observations, and columns correspond to variables.
+	 *			Output is the row vector of length \f$ \frac{m(m - 1)}{2} \f$, corresponding to pairs of observations in \f$X\f$.<br>
+	 *			The distances are arranged in the order \f$(2, 1), (3, 1), \cdots, (m, 1), (3, 2), \cdots, (m, 2), \cdots, (m, m - 1)\f$.<br>
+	 *			Output is commonly used as a dissimilarity matrix in clustering or multidimensional scailing.
+	 *	@return	Pairwise distance.
+	 *	@note	This is preliminary implementation.
+	 */
+	vec pdist(const mat& X, distance_type type = euclidean, pdist_func func_ptr = nullptr)
+	{
+		const uword m = X.n_rows;
+		vec Y(m * (m - 1) / 2);
+		double* ptr = Y.memptr();
+
+		switch (type) {
+		case euclidean:
+			func_ptr = pdist_euclidean;
+			break;
+		case custom:
+			// stub
+			break;
+		default:
+			func_ptr = &pdist_euclidean;
+		}
+
+		uword k = 0;
+		for (uword i = 0 ; i < m ; i++)
+			for (uword j = i + 1 ; j < m ; j++)
+				ptr[k++] = func_ptr(X.row(i), X.row(j)); //sqrt(sum(square(X.row(j) - X.row(i))));
+
+		return Y;
+	}
 
 #ifndef DOXYGEN
 	/**
@@ -103,7 +178,7 @@ namespace arma_ext
 		uvec todo = ones<uvec>(n);
 
 		// Define cluster numbers for each side of each non-leaf node
-		umat clustlist = reshape(arma_ext::sequence<uvec>(1, 2 * n), n, 2);
+		umat clustlist = reshape(arma_ext::colon<uvec>(1, 2 * n), n, 2);
 
 		// Propagate cluster numbers down the tree
 		while (any(todo)) {
@@ -156,8 +231,7 @@ namespace arma_ext
 	{
 		#define ISNAN(a) (a != a)
 
-		enum method_types
-		{single,complete,average,weighted,centroid,median,ward} method_key;
+		enum method_types {single, complete, average, weighted, centroid, median, ward} method_key;
 
 		typedef int mwSize;
 		typedef double TEMPL;
@@ -713,4 +787,6 @@ namespace arma_ext
 		uvec conn = checkcut(Z, c, crit);
 		return labeltree(Z, conn);
 	}
+
+	//!	@}
 }

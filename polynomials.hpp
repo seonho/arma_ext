@@ -1,6 +1,6 @@
 /**
  *	@file		polynomials.hpp
- *	@brief		An implemenation of array operations
+ *	@brief		Polynomial functions.
  *	@author		seonho.oh@gmail.com
  *	@date		2013-07-01
  *	@version	1.0
@@ -43,6 +43,9 @@
 namespace arma_ext
 {
 	using namespace arma;
+
+	//!	@addtogroup	poly
+	//!	@{
 	
 	/**
 	 	@brief	Polynomial roots.<br>
@@ -82,4 +85,6 @@ namespace arma_ext
 		A.row(0) = -c(span(1, n)) / c[0];
 		eig_gen(eigval, eigvec, A);
 	}
+
+	//!	@}
 }

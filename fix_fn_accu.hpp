@@ -1,6 +1,6 @@
 /**
  *	@file		fix_fn_accu.hpp
- *	@brief		An implemenation of template function specialization of arma::accu_proxy_linear
+ *	@brief		Specializes template function arma::accu_proxy_linear
  *	@author		seonho.oh@gmail.com
  *	@date		2013-07-01
  *	@version	1.0

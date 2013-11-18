@@ -1,6 +1,6 @@
 /**
  *	@file		fix_arrayop.hpp
- *	@brief		An implemenation of template function specialization of arma::arrayop::convert
+ *	@brief		Specializes template function arma::arrayop::convert
  *	@author		seonho.oh@gmail.com
  *	@date		2013-07-01
  *	@version	1.0

@@ -1,6 +1,6 @@
 /**
  *	@file		random.hpp
- *	@brief		An implemenation of randomize functions
+ *	@brief		Random number generation functions
  *	@author		seonho.oh@gmail.com
  *	@date		2013-07-01
  *	@version	1.0
@@ -41,20 +41,34 @@
 #include <armadillo>
 #include <random>
 
+#include "mpl.hpp"
+
+#include <ppl.h>
+
+#if	(_MSC_VER <= 1600)
+/// From Microsoft Visual Studio 2012, Concurrency namespace has been changed to concurrency.
+/// For compatibility, namespace alias is used
+namespace concurrency = Concurrency;
+#endif
+
 namespace arma_ext
 {
 	using namespace arma;
 
-	std::mt19937 eng;
+	//!	@addtogroup	rand
+	//!	@{
+
+	std::mt19937 eng; ///< Mersenne twister engine.
 
 	/**
-	 *	@brief	
-	 *	@return	
+	 *	@brief	Uniformly distributed pseudorandom number.
+	 *	@return	A pseudorandom value drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
-	inline double rand()
+	template <typename T>
+	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type rand()
 	{
-		static std::uniform_real_distribution<double> ur;
-		double value = ur(eng);
+		static std::uniform_real_distribution<T> ur;
+		T value = ur(eng);
 		ur(eng);
 		return value;
 	}
@@ -65,54 +79,71 @@ namespace arma_ext
 	 *	@param cols the number of columns.
 	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
-	template <typename mat_type>
-	inline mat_type rand(const size_type rows, const size_type cols)
+	template <typename T>
+	inline typename std::enable_if<is_arma_type<T>::value, T>::type rand(const size_type rows, const size_type cols)
 	{
-		typedef mat_type::elem_type eT;
-
-		mat_type out(rows, cols);
-		//std::uniform_real_distribution<eT> ur;
-		//out.imbue([&]()->eT {
-			//eT value = ur(eng);
-			//ur(eng);
-			//return value;
-			//return rand();
-		//});
-		out.imbue(&rand);
-		
+		T out(rows, cols);
+		out.imbue(&rand<typename T::elem_type>);
 		return out;
 	}
-
+	
 	/**
 	 *	@brief	Overloaded function for rand.
 	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
-	template <typename mat_type>
-	inline mat_type rand(const size_type n)
+	template <typename T>
+	inline typename std::enable_if<is_arma_type<T>::value, T>::type rand(const size_type n)
 	{
-		if (mat_type::is_col || mat_type::is_row) {
-			mat_type out(n);
-			out.imbue(&rand);
+		if (T::is_col || T::is_row) {
+			T out(n);
+			out.imbue(&rand<typename T::elem_type>);
 			return out;
-		} else
-			return arma_ext::rand<mat_type>(n, n);
+		}
+
+		return arma_ext::rand<T>(n, n);
+	}
+	
+	/**
+	 *	@brief	Normally distributed pseudorandom numbers.
+	 *	@return	A pseudorandom value drawn from the standard normal distribution.
+	 */
+	template <typename T>
+	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type randn()
+	{
+		static std::normal_distribution<T> nr;
+		T value = nr(eng);
+		nr(eng);
+		return value;
 	}
 
-	template <typename mat_type>
-	inline mat_type randn(const size_type rows, const size_type cols)
+	/**
+	 *	@brief	Normally distributed pseudorandom numbers.
+	 *	@param rows the number of rows.
+	 *	@param cols the number of columns.
+	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard normal distribution.
+	 */
+	template <typename T>
+	inline typename std::enable_if<is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
 	{
-		typedef mat_type::elem_type eT;
-		static std::normal_distribution<eT> nr;
-
-		mat_type out(rows, cols);
-
-		out.imbue([&]()->eT {
-			double value = nr(eng);
-			nr(eng);
-			return value;
-		});
-
+		T out(rows, cols);
+		out.imbue(&randn<typename T::elem_type>);
 		return out;
+	}
+	
+	/**
+	 *	@brief	Overloaded function for randn.
+	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard normal distribution.
+	 */
+	template <typename T>
+	inline typename std::enable_if<is_arma_type<T>::value, T>::type randn(const size_type n)
+	{
+		if (T::is_col || T::is_row) {
+			T out(n);
+			out.imbue(&randn<typename T::elem_type>);
+			return out;
+		}
+
+		return arma_ext::randn<T>(n, n);
 	}
 
 	/**
@@ -140,21 +171,21 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Random permutation with a given vector
-	 *	@param in	The input vector
+	 *	@param in	The input vector.
 	 *	@param k	The maximum number of elements of the vector to be returned.
+	 *	@param junk	Reserved.
 	 *	@return Permuted vector
 	 */
 	template <typename T>
-	Col<T> randvalues(const Col<T>& in, uword k)
+	typename std::enable_if<std::or_<T::is_col, T::is_row>::value, T>::type randvalues(const T& in, uword k, const typename enable_if< is_arma_type<T>::value>::result* junk = 0)
 	{
-		Col<T> out;
-
+		T out;
 		uword N = in.n_elem;
 
 		if (k > N) k = N;
 
 		if ((double)k / N < 0.0001) {
-			Col<T> i1 = conv_to<Col<T>>::from(arma::unique(arma::ceil(N * rand<vec>(k))));
+			uvec i1 = conv_to<uvec>::from(arma::unique(arma::ceil(N * rand<T>(k))));
 			out = in.elem(i1);
 		} else {
 			uvec i2 = randperm(N);
@@ -163,4 +194,6 @@ namespace arma_ext
 
 		return out;
 	}
+
+	//!	@}
 }

@@ -1,6 +1,6 @@
 /**
- *	@file		imresize.hpp
- *	@brief		An implemenation of imresize function
+ *	@file		imgproc.hpp
+ *	@brief		Image processing functions
  *	@author		seonho.oh@gmail.com
  *	@date		2013-07-01
  *	@version	1.0
@@ -52,6 +52,32 @@ namespace arma_ext
 {
 	using namespace arma;
 
+	//!	@defgroup	imgproc	Image Processing
+	//!	@brief		Image processing functions.
+	//!	@{
+
+	/**
+	 *	@brief	Template function for accurate conversion from one primitive to another
+	 *			The functions saturate_cast resemble the standard C++ cast operations, such as static_cast<T>()
+	 *			and others. They perform an efficient and accurate conversion from one primitive type to another.
+	 *			saturate in the name means that when the input value v is out of the range of the target type,
+	 *			the result is not formed just by taking low bits of the input, but instead the value is clipped.
+	 *	@note	This partial implementation is taken from OpenCV. Only support double to unsigned char
+	 */
+	template <typename T1, typename T2>
+	static inline T1 saturate_cast(const T2& v) { return T1(v); }
+
+	template <typename T2>
+	static inline unsigned char saturate_cast(const T2& v)
+	{
+		if (std::is_floating_point<T2>::value) {
+			T2 rv = round(v);
+			return (unsigned char)((unsigned)rv <= std::numeric_limits<unsigned char>::max() ? rv : rv > 0 ? std::numeric_limits<unsigned char>::max() : 0);
+		}
+
+		return (unsigned char)((unsigned)v <= std::numeric_limits<unsigned char>::max() ? v : v > 0 ? std::numeric_limits<unsigned char>::max() : 0);
+	}
+
 	//template <typename eT>
 	//arma::Mat<eT> separable_conv(const arma::Mat<eT>& a, const arma::Mat<eT>& h, const arma::Mat<eT>& v)
 	//{
@@ -99,155 +125,7 @@ namespace arma_ext
 	//	return c;
 	//}
 
-	/**
-	 *	Convolution types
-	 */
-	enum convolution_type : uword {full, same, valid};
-
-	/**
-	 *	@brief	An arma style intermediate interface class implementation of 2D convolution operation
-	 *	@see	conv2
-	 */
-	class glue_conv2
-	{
-	public:
-		template <typename T1, typename T2>
-		inline static void apply(Mat<typename T1::elem_type>&out, const Glue<T1, T2, glue_conv2>& X)
-		{
-			arma_extra_debug_sigprint();
-
-			typedef typename T1::elem_type elem_type;
-
-			const Mat<elem_type>& a = X.A;
-			const Mat<elem_type>& b = X.B;
-
-			uword ma = a.n_rows, na = a.n_cols;
-			uword mb = b.n_rows, nb = b.n_cols;
-			uword mc = ma + mb - 1, nc = na + nb - 1;
-			
-			out.set_size(mc, nc);
-
-			concurrency::parallel_for(uword(0), nc, [&](uword c) {
-			//for (uword c = 0 ; c < nc ; c++) {
-				for (uword r = 0 ; r < mc ; r++) {
-					elem_type value = 0;
-
-					const uword minu = (r + 1 > mb) ? r - mb + 1 : 0/*std::max(r - mb + 1, uword(0))*/;
-					const uword maxu = std::min(ma - 1, r);
-
-					const uword minv = (c + 1 > nb) ? c - nb + 1 : 0/*std::max(c - nb + 1, uword(0))*/;
-					const uword maxv = std::min(na - 1, c);
-
-					for (uword v = minv ; v <= maxv ; v++) {
-						for (uword u = minu ; u <= maxu ; u++) {
-							value += a(u, v) * b(r - u, c - v);
-						}
-					}
-
-					out(r, c) = value;
-				}
-			//}
-			});
-
-			switch (X.aux_uword) {
-			case full:
-				// do nothing
-				break;
-			case valid:
-				out = out(span(mb - 1,ma - 1), span(nb - 1,na - 1));
-				break;
-			case same:
-				{
-					uword r1 = (uword)std::floor(mb / 2.0);	// zero-begin index corrected
-					uword r2 = r1 + ma - 1;
-					uword c1 = (uword)std::floor(nb / 2.0);	// zero-begin index corrected
-					uword c2 = c1 + na - 1;
-					out = out(span(r1, r2), span(c1, c2));
-				}
-				break;
-			default:
-				break;
-			}
-		}
-	};
-
-	/**
-	 *	@brief	2-D convolution of matrices A and B.<br>
-	 *			
-	 *	@param A			The input matrix.
-	 *	@param B			The convolution kernel matrix.
-	 *	@param conv_type	The convolution type
-	 *	@return	convolution The result matrix.
-	 *	@see	http://www.mathworks.co.kr/kr/help/matlab/ref/conv2.html
-	 *	@see	convolution_type
-	 *	@note	This function is preliminary; it is not yet fully optimized.
-	 */
-	template <typename T1, typename T2>
-	inline const Glue<T1, T2, glue_conv2> conv2(const Base<typename T1::elem_type, T1>& A, const Base<typename T1::elem_type, T2>& B, const uword conv_type = full)
-	{
-		arma_extra_debug_sigprint();
-  
-		return Glue<T1, T2, glue_conv2>(A.get_ref(), B.get_ref(), conv_type);
-	}
-
 #ifndef DOXYGEN
-	template <typename eT>
-	__declspec(deprecated) arma::Mat<eT> conv2_(const arma::Mat<eT>& a, const arma::Mat<eT>& b, convolution_type conv_type = full)
-	{
-		// check arguments
-		uword ma = a.n_rows, na = a.n_cols;
-		uword mb = b.n_rows, nb = b.n_cols;
-
-		if (conv_type == valid)
-			assert(mb <= ma && nb <= na);
-
-		arma::Mat<eT> c = zeros(ma + mb - 1, na + nb - 1);
-
-		// do full convolution
-		for (uword j = 0 ; j < nb ; j++) {
-			uword c1 = j;
-			uword c2 = c1 + na - 1;
-			for (uword i = 0 ; i < mb ; i++) {
-				uword r1 = i;
-				uword r2 = r1 + ma - 1;
-				c(span(r1, r2), span(c1, c2)) = c(span(r1, r2), span(c1, c2)) + b(i, j) * a;
-				//concurrency::parallel_for (uword(0), na, [&](uword cl) {
-				////for(uword cl = 0 ; cl < na ; cl++)/ {
-				//	for (uword rk = 0 ; rk < ma ; rk++) {
-				//		c(rk + r1, cl + c1) += b(i, j) * a(rk, cl);
-				//	}
-				////}
-				//});
-			}
-		}
-
-		switch (conv_type) {
-		case same:
-			{
-				uword r1 = (uword)std::floor(mb / 2.0);	// zero-begin index corrected
-				uword r2 = r1 + ma - 1;
-				uword c1 = (uword)std::floor(nb / 2.0);	// zero-begin index corrected
-				uword c2 = c1 + na - 1;
-				c = c(span(r1, r2), span(c1, c2));
-			}
-			break;
-		case valid:
-			c = c(span(mb - 1,ma - 1), span(nb - 1,na - 1));
-			break;
-		case full:
-		default:
-			// nothing to do, full convolution done
-			break;
-		}
-
-		return c;
-	}
-#endif
-
-	/**
-	 *	@name Internal functions and definitions for imresize
-	 *	@{
-	 */
 
 	typedef double (*kernel_func)(double);
 	typedef double (*kernel_func_modified)(kernel_func, double, double);
@@ -415,7 +293,7 @@ namespace arma_ext
 		return out;
 	}
 
-	/**@}*/
+#endif
 
 	/**
 	 *	@brief	Resize image
@@ -470,4 +348,233 @@ namespace arma_ext
 
 		return B;
 	}
+
+	//! Padding method
+	enum pad_method : uword  {
+		constant,		//! Pad array with constant value.
+		circular,		//! Pad with circular repetition of elements within the dimension.
+		replicate,		//! Pad by repeating border elements of array.
+		symmetric		//! Pad array with mirror reflections of itself.
+	};
+
+	//! Padding direction
+	enum pad_direction : uword {
+		both,		//! Pads before the first element and after the last array element along each dimension.
+		pre,		//! Pad after the last array element along each dimension.
+		post		//! Pad before the first element along each dimension.
+	};
+		
+	/**
+	 *	@brief	Pads array A with @c padsize (rows, cols) number of zeros along the k-th dimension of A. @c padsize should be a nonnegative integers.
+	 *	@param A			The source array.
+	 *	@param rows			A row pad size.
+	 *	@param cols			A column pad size.
+	 *	@return	Padded array.
+	 */
+	template <typename T>
+	T padarray(const T& A, uword rows, uword cols)
+	{
+		typedef T::elem_type elem_type;
+		return constantpad(A, rows, cols, elem_type(0), both);
+	}
+
+	/**
+	 *	@brief	Pads array A with @c padval (a scalar) instead of with zeros in the direction specified by the @c direction.
+	 *	@param A			The source array.
+	 *	@param rows			A row pad size.
+	 *	@param cols			A column pad size.
+	 *	@param padval		A scalar value.
+	 *	@param direction	The pad direction, see #pad_direction. By default, direction is 'both'.
+	 *	@return	Padded array.
+	 */
+	template <typename T>
+	T padarray(const T& A, uword rows, uword cols, typename T::elem_type padval, pad_direction direction = both)
+	{
+		return constantpad(A, rows, cols, padval, direction);
+	}
+
+	/**
+	 *	@brief	Pads array A with using the specified @c method and @c direction.
+	 *	@param A			The source array.
+	 *	@param rows			A row pad size.
+	 *	@param cols			A column pad size.
+	 *	@param method		The pad method, see #pad_method.
+	 *	@param direction	The pad direction, see #pad_direction.
+	 *	@return	Padded array.
+	 */
+	template <typename T>
+	T padarray(const T& A, uword rows, uword cols, pad_method method, pad_direction direction)
+	{
+		typedef T::elem_type elem_type;
+		const uword size = sizeof(elem_type);
+
+		if (method == constant)
+			return constantpad(A, rows, cols, elem_type(0), direction);
+
+		T out;
+		arma::field<uvec> indices = getPaddingIndices(A, rows, cols, method, direction);
+
+		uvec ri = indices(0), ci = indices(1);
+		out.set_size(ri.n_elem, ci.n_elem);
+
+		const uword colsize = size * A.n_rows;
+		uword offset = (direction == post) ? 0 : rows;
+		
+		for (uword c = 0 ; c < ci.n_elem ; c++)
+			memcpy(out.colptr(c) + offset, A.colptr(ci[c]), colsize);
+
+		uvec copyflag;
+		switch (direction) {
+		case pre:
+			copyflag = join_cols(ones<uvec>(rows, 1), zeros<uvec>(A.n_rows, 1));
+			break;
+		case post:
+			copyflag = join_cols(zeros<uvec>(A.n_rows, 1), ones<uvec>(rows, 1));
+			break;
+		case both:
+			copyflag = join_cols(join_cols(ones<uvec>(rows, 1), zeros<uvec>(A.n_rows, 1)), ones<uvec>(rows, 1));
+			break;
+		}
+
+		for (uword r = 0 ; r < ri.n_elem ; r++) {
+			if (copyflag[r])
+				out.row(r) = out.row(ri[r] + offset);
+		}
+
+		return out;
+	}
+
+#ifndef DOXYGEN
+
+	/// internal function
+	template <typename T>
+	T constantpad(const T& A, uword rows, uword cols, typename T::elem_type padval, pad_direction direction)
+	{
+		typedef T::elem_type elem_type;
+		const uword size = sizeof(elem_type);
+
+		T out;
+
+		switch (direction) {
+		case both:
+			out.set_size(A.n_rows + rows * 2, A.n_cols + cols * 2);
+			out.fill(padval);
+			out(span(rows, A.n_rows + rows - 1), span(cols, A.n_cols + cols - 1)) = A;
+			break;
+		case pre:
+			out.set_size(A.n_rows + rows, A.n_cols + cols);
+			out.fill(padval);
+			out(span(rows, A.n_rows + rows - 1), span(cols, A.n_cols + cols - 1)) = A;
+			break;
+		case post:
+			out.set_size(A.n_rows + rows, A.n_cols + cols);
+			out.fill(padval);
+			out(span(0, A.n_rows - 1), span(0, A.n_cols - 1)) = A;
+			break;
+		default:
+			// throw exception
+			throw std::invalid_argument("direction is invalid");
+		}
+
+		return out;
+	}
+
+	template <typename T>
+	arma::field<arma::uvec> getPaddingIndices(const T& A, uword rows, uword cols, pad_method method, pad_direction direction)
+	{
+		switch (method) {
+		case circular:
+			return circularpad(A, rows, cols, direction);
+		case symmetric:
+			return symmetricpad(A, rows, cols, direction);
+		case replicate:
+			return replicatepad(A, rows, cols, direction);
+		}
+
+		return arma::field<arma::uvec>();
+	}
+	
+	template <typename T>
+	arma::field<arma::uvec> circularpad(const T& A, uword rows, uword cols, pad_direction direction)
+	{
+		arma::field<arma::uvec> indices(2);
+		int M, p;
+
+		for (uword k = 0 ; k < 2 ; k++) {
+			p = (k == 0) ? (int)rows : (int)cols;
+			M = (k == 0) ? A.n_rows : A.n_cols;
+
+			switch (direction) {
+			case pre:
+				indices(k) = arma::conv_to<uvec>::from(mod(colon<ivec>(-p, M - 1), M));
+				break;
+			case post:
+				indices(k) = arma::conv_to<uvec>::from(mod(colon<ivec>(0, M + p - 1), M));
+				break;
+			case both:
+				indices(k) = arma::conv_to<uvec>::from(mod(colon<ivec>(-p, M + p - 1), M));
+				break;
+			}
+		}
+
+		return indices;
+	}
+
+	template <typename T>
+	arma::field<arma::uvec> symmetricpad(const T& A, uword rows, uword cols, pad_direction direction)
+	{
+		arma::field<arma::uvec> indices(2);
+		int M, p;
+
+		for (uword k = 0 ; k < 2 ; k++) {
+			p = (k == 0) ? (int)rows : (int)cols;
+			M = (k == 0) ? A.n_rows : A.n_cols;
+
+			arma::uvec dimNum = arma::conv_to<uvec>::from(arma::join_cols(colon<ivec>(0, M - 1), colon<ivec>(M - 1, -1, 0)));
+
+			switch (direction) {
+			case pre:
+				indices(k) = dimNum.elem(arma::conv_to<uvec>::from(mod(colon<ivec>(-p, M - 1), 2 * M)));
+				break;
+			case post:
+				indices(k) = dimNum.elem(arma::conv_to<uvec>::from(mod(colon<ivec>(0, M + p - 1), 2 * M)));
+				break;
+			case both:
+				indices(k) = dimNum.elem(arma::conv_to<uvec>::from(mod(colon<ivec>(-p, M + p - 1), 2 * M)));
+				break;
+			}
+		}
+
+		return indices;
+	}
+
+	template <typename T>
+	arma::field<arma::uvec> replicatepad(const T& A, uword rows, uword cols, pad_direction direction)
+	{
+		arma::field<arma::uvec> indices(2);
+		int M, p;
+
+		for (uword k = 0 ; k < 2 ; k++) {
+			p = (k == 0) ? (int)rows : (int)cols;
+			M = (k == 0) ? A.n_rows : A.n_cols;
+
+			switch (direction) {
+			case pre:
+				indices(k) = join_cols(zeros<uvec>(p, 1), colon<uvec>(0, M - 1));
+				break;
+			case post:
+				indices(k) = join_cols(colon<uvec>(0, M - 1), ones<uvec>(rows, 1) * (M - 1));
+				break;
+			case both:
+				indices(k) = join_cols(join_cols(zeros<uvec>(p, 1), colon<uvec>(0, M - 1)), ones<uvec>(p, 1) * (M - 1));
+				break;
+			}
+		}
+
+		return indices;
+	}
+
+#endif
+
+	//!	@}
 }

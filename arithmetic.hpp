@@ -1,6 +1,6 @@
 /**
- *	@file		logicalop.hpp
- *	@brief		An implemenation of logical operations
+ *	@file		arithmetic.hpp
+ *	@brief		Arithmetic operations
  *	@author		seonho.oh@gmail.com
  *	@date		2013-07-01
  *	@version	1.0
@@ -38,65 +38,42 @@
 
 #pragma once
 
-#include <armadillo>
+#include <numeric>	// for std::adjacent_difference
+#include <cassert>
 
 namespace arma_ext
 {
-	using namespace arma;
+	//!	@addtogroup	arit
+	//!	@{
 
 	/**
-	 *	@brief	Determine whether any matrix elements are nonzero
-	 *	@param	m the input matrix
-	 *	@return	true / false
-	 *	@see	http://www.mathworks.co.kr/kr/help/matlab/ref/any.html
+	 *	@brief	Round operation for scalar value.
+	 *	@param x the given scalar value
+	 *	@return	 the rounded value
 	 */
-	inline bool any(const umat& m)
-	{
-		return arma::any(arma::any(m));
-	}
+	template <typename T>
+	inline T round(const T& x) { return arma::eop_aux::round(x); }
 
-	/**
-	 *	@brief	Array elements that are NaN
-	 *	@param A An input vector
-	 *	@returns an array the same sizes as A containing logical 1 (true) where the elements of A are NaNs and logical 0 (false) where they are not.
-	 */
-	uvec isnan(const vec& A)
+	//! Modulus after division
+	template <typename vec_type>
+	inline vec_type mod(const vec_type& X, typename vec_type::elem_type Y)
 	{
-		uvec out(A.size());
-		//std::transform(A.begin(), A.end(), out.begin(), [](double value)->uword { return _isnan(value) > 0 ? 1 : 0; });
-		const double* iptr = A.memptr();
-		uword* optr = out.memptr();
-		for (uword i = 0 ; i < A.size() ; i++)
-			optr[i] = _isnan(iptr[i]) > 0 ? 1 : 0;
+		typedef vec_type::elem_type elem_type;
+		assert(Y != 0);
 		
-		return out;
+		vec_type M;
+		switch (X.vec_state) {
+		case 0: // matrix
+			M = X - arma::conv_to<vec_type>::from(arma::floor(arma::conv_to<mat>::from(X) / (double)Y)) * Y;
+			break;
+		case 1:
+		case 2:
+			M = X - arma::conv_to<vec_type>::from(arma::floor(arma::conv_to<vec>::from(X) / (double)Y)) * Y;
+			break;
+		}
+		
+		return M;
 	}
 
-	/**
-	 *	@brief	Check scalar value is NaN
-	 *	@param value the scalar value
-	 *	@return true/false
-	 */
-	inline bool isnan(double value)
-	{
-		return _isnan(value) > 0 ? true : false;
-	}
-	
-	/**
-	 *	@brief	Find logical NOT of array or scalar input.
-	 *	@param A An array or a scalar input.<br> input type should be uvec or umat or uword
-	 *	@return A logical NOT of input array or scalar @c A.
-	 */
-	template <typename mat_type>
-	inline mat_type not(const mat_type& A)
-	{
-		return ones<mat_type>(A.n_elem) - A;
-	}
-
-	/// Template function speicialization for #not.
-	template <>
-	inline uword not(const uword& A)
-	{
-		return (1 - A);
-	}
+	//!	@}
 }

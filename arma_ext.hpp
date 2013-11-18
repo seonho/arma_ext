@@ -46,59 +46,18 @@
  */
 namespace arma_ext
 {
-	using namespace arma;
+	//! Type definition for size type
 	typedef arma::uword size_type;
-	
-	/**
-	 *	@brief	Round operation for scalar value.
-	 *	@param v the given scalar value
-	 *	@return	 the rounded value
-	 */
-	template <typename T>
-	inline T round(const double& v)
-	{
-		return v < 0 ? static_cast<T>(ceil(v - 0.5)) : static_cast<T>(floor(v + 0.5));
-	}
-
-	/**
-	 *	@brief	Template function for accurate conversion from one primitive to another
-	 *			The functions saturate_cast resemble the standard C++ cast operations, such as static_cast<T>()
-	 *			and others. They perform an efficient and accurate conversion from one primitive type to another.
-	 *			saturate in the name means that when the input value v is out of the range of the target type,
-	 *			the result is not formed just by taking low bits of the input, but instead the value is clipped.
-	 *	@note	This partial implementation is taken from OpenCV. Only support double to unsigned char
-	 */
-	template <typename T1, typename T2>
-	static inline T1 saturate_cast(T2 v) { return T1(v); }
-
-	template <>
-	static inline unsigned char saturate_cast(int v)
-	{
-		return (unsigned char)((unsigned)v <= std::numeric_limits<unsigned char>::max() ? v : v > 0 ? std::numeric_limits<unsigned char>::max() : 0);
-	}
-
-	template <>
-	static inline unsigned char saturate_cast(float v)
-	{
-		int iv = round<int>(v);
-		return (unsigned char)saturate_cast<unsigned char>(iv); 
-	}
-
-	template <>
-	static inline unsigned char saturate_cast(double v)
-	{
-		int iv = round<int>(v);
-		return (unsigned char)saturate_cast<unsigned char>(iv); 
-	}
 }
 
-#include "logicalop.hpp"
-#include "arrayop.hpp"
-#include "imresize.hpp"
-#include "random.hpp"
-#include "statistics.hpp"
-#include "hierarchical_clustering.hpp"
+#include "fundamentals.hpp"	// fundamentals
+#include "mathematics.hpp"	// mathematics
+
+#include "imgproc.hpp"		// image processing
+
+#include "clustanal.hpp"	// cluster analysis
+
+// precision loss correction
 #include "fix_fn_accu.hpp"
-#include "polynomials.hpp"
-#include "matrix_analysis.hpp"
 #include "fix_op_dot.hpp"
+#include "fix_arrayop.hpp"

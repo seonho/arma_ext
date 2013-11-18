@@ -1,8 +1,8 @@
 /**
- *	@file		statistics.hpp
- *	@brief		Statistics functions
+ *	@file		matanal.hpp
+ *	@brief		Matrix analysis functions.
  *	@author		seonho.oh@gmail.com
- *	@date		2013-07-01
+ *	@date		2013-10-07
  *	@version	1.0
  *
  *	@section	LICENSE
@@ -44,53 +44,33 @@ namespace arma_ext
 {
 	using namespace arma;
 
-	//!	@ingroup	stat
+	//!	@addtogroup	matanal
 	//!	@{
-
 	/**
-	 *	@brief	2-D correlation coefficient
-	 *	@param A
-	 *	@param B
-	 *	@return	the correlation coefficient between @c A and @c B, where @c A and @c B are matrices or vectors of the same size.
-	 *			@c corr2 computes the correlation coefficient using
-	 *			\f[
-	 *				r = \frac{ \sum_{m}\sum_{n}(A_{mn}-\bar{A}) (B_{mn}-\bar{B}) }{\sqrt{ \left( \sum_{m}\sum_{n}(A_{mn}-\bar{A})^2 \right) \left( \sum_{m}\sum_{n}(B_{mn}-\bar{B})^2 \right)}}
-	 *			\f]
-	 *			where
-	 *			\f$ \bar{A}\f$=mean2(A), and \f$\bar{B}\f$=mean2(B).
-	 *	@see	http://www.mathworks.co.kr/kr/help/images/ref/corr2.html
-	 */
-	template <typename mat_type, typename prec_type>
-	inline prec_type corr2(const mat_type& A, const mat_type& B)
-	{
-		typedef Mat<prec_type> tmat;
-		tmat A1, B1;
-		A1 = conv_to<tmat>::from(A);
-		B1 = conv_to<tmat>::from(B);
-		A1 -= mean2(A1);
-		B1 -= mean2(B1);
-		return accu(A1 % B1) / sqrt(accu(square(A1)) * accu(square(B1)));
-	}
-
-	/**
-	 *	@brief	Median without NaN
-	 *	@param x a vector or a matrix
-	 */
-	template <typename vec_type>
-	inline double median_(const vec_type& x)
-	{
-		return median(x.elem(find(arma_ext::isnan(x) == 0)));
-	}
-
-	/**
-	 *	@brief	Average or mean of matrix elements
-	 *	@param A An input matrix
+	 *	@brief	Null space.<br>
+				\f$ Z = \mathrm{null}(A) \f$ is an orthonormal basis for the null space of A obtained from the singular value decomposition.<br>
+				\f$ A * Z \f$ has negligible elements, @c Z.num_cols is the nullity of \f$A\f$, and \f$Z' * Z = I\f$.
+	 *	@param A 
+	 *	@return	An orthonormal basis for the null space of @c A
+	 *	@note	This implementation highly dependent on the singular value decomposition.
 	 */
 	template <typename mat_type>
-	inline typename mat_type::elem_type mean2(const mat_type& A)
+	mat_type null(const mat_type& A)
 	{
-		return mean(vectorise(A));
-	}
+		typedef typename mat_type::elem_type elem_type;
 
+		const uword m = A.n_rows,
+			  n = A.n_cols;
+		
+		mat_type U, V;
+		Col<elem_type> S;
+		
+		// orthonormal basis
+		arma::svd_econ(U, S, V, A);
+		elem_type tol = std::max(m, n) * max(S) * std::numeric_limits<elem_type>::epsilon();
+		uword r = sum(S > tol);
+		return V.cols(r, n - 1);
+	}
+	
 	//!	@}
 }
