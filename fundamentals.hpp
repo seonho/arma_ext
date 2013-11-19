@@ -88,25 +88,54 @@ namespace arma_ext
 		return X;
 	}
 
+	//!	@brief	An arma style intermediate interface class for replicating cells (matrix elements).
+	//!	@see	repcel
+	class op_repcel
+	{
+	public:
+		//!	@brief	A rudimentary implementation of the replicating cells (matrix elements).
+		template <typename T1>
+		inline static void apply(Mat<typename T1::elem_type>& out, const Op<T1, op_repcel>& in)
+		{
+			arma_extra_debug_sigprint();
+
+			typedef typename T1::elem_type eT;
+  
+			const unwrap_check<T1> tmp(in.m, out);
+			const Mat<eT>& X     = tmp.M;
+
+			const uword r = in.aux_uword_a;
+			const uword c = in.aux_uword_b;
+
+			const uword m = X.n_rows;
+			const uword n = X.n_cols;
+
+			out.set_size(m * r, n * c);
+
+			const uword out_n_rows = out.n_rows;
+			const uword out_n_cols = out.n_cols;
+
+			concurrency::parallel_for(uword(0), m, [&](uword i) {
+				for (uword j = 0 ; j < n ; j++) {
+					out.submat(span(r * i, r * (i + 1) - 1), span(c * j, c * (j + 1) - 1)).fill(X.at(i, j));
+				}
+			});
+		}
+	};
+
 	/**
-	 *	@brief	Repeats cells m x n times.
-	 *	@param	in	The input matrix.
+	 *	@brief	Repeats cells (matrix elements) m x n times.
+	 *	@param	A	The input matrix.
 	 *	@param	r	The number of rows.
 	 *	@param	c	The number of columns.
-	 *	@return A	replicated matrix.
+	 *	@return A replicated matrix.
 	 */
 	template <typename T1>
-	arma::Mat<T1> repcel(const arma::Mat<T1>& in, const size_type r, const size_type c)
+	inline const Op<T1, op_repcel> repcel(const Base<typename T1::elem_type, T1>& A, const size_type r, const size_type c)
 	{
-		arma::Mat<T1> out(r * in.n_rows, c * in.n_cols);
-		//for (uword i = 0 ; i < in.n_rows ; i++) {
-		concurrency::parallel_for(uword(0), in.n_rows, [&](uword i) {
-			for (uword j = 0 ; j < in.n_cols ; j++) {
-				out.submat(span(r * i, r * (i + 1) - 1), span(c * j, c * (j + 1) - 1)).fill(in.at(i, j));
-			}
-		});
-		//}
-		return out;
+		arma_extra_debug_sigprint();
+
+		return Op<T1, op_repcel>(A.get_ref(), r, c);
 	}
 
 	/**
