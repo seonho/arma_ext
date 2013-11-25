@@ -185,7 +185,7 @@ namespace arma_ext
 		if (k > N) k = N;
 
 		if ((double)k / N < 0.0001) {
-			uvec i1 = conv_to<uvec>::from(arma::unique(arma::ceil(N * rand<T>(k))));
+			uvec i1 = conv_to<uvec>::from(arma::unique(arma::ceil(N * rand<vec>(k))));
 			out = in.elem(i1);
 		} else {
 			uvec i2 = randperm(N);

@@ -80,7 +80,7 @@ namespace arma_ext
 	 *	@param rows	the row size of matrix
 	 *	@param cols	the column size of matrix
 	 *	@param ind	A linear index.
-	 *	@return	The substripts correspond to the given linear index
+	 *	@return	The subscripts correspond to the given linear index
 	 */
 	inline urowvec2 ind2sub(size_type rows, size_type cols, size_type ind)
 	{
@@ -90,7 +90,7 @@ namespace arma_ext
 	}
 
 	/**
-	 *	@brief	An implementation of MATLAB's colon operator start:invertal:end.
+	 *	@brief	An implementation of MATLAB's colon operator start:interval:end.
 	 *			Create a vector contains [start, start + interval, ..., start + m * interval], where m = floor((end - start) / interval).
 	 *	@param start	the first value
 	 *	@param interval interval
