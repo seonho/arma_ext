@@ -66,7 +66,6 @@ namespace arma_ext
 	uvec isnan(const vec& A)
 	{
 		uvec out(A.size());
-		//std::transform(A.begin(), A.end(), out.begin(), [](double value)->uword { return _isnan(value) > 0 ? 1 : 0; });
 		const double* iptr = A.memptr();
 		uword* optr = out.memptr();
 		for (uword i = 0 ; i < A.size() ; i++)
@@ -96,7 +95,7 @@ namespace arma_ext
 		return ones<mat_type>(A.n_elem) - A;
 	}
 
-	/// Template function speicialization for #not.
+	//! Template function specialization for #not.
 	template <>
 	inline uword not(const uword& A)
 	{

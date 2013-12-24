@@ -99,7 +99,10 @@ namespace arma_ext
 	 *	@return	A vector that contains the sequence.
 	 */
 	template <typename vec_type>
-	vec_type colon(const typename vec_type::pod_type start, const typename vec_type::pod_type interval, const typename vec_type::pod_type end, const typename arma_Mat_Col_Row_only<vec_type>::result* junk = 0)
+	vec_type colon(const typename vec_type::pod_type start, 
+				   const typename vec_type::pod_type interval, 
+				   const typename vec_type::pod_type end, 
+				   const typename arma_Mat_Col_Row_only<vec_type>::result* junk = 0)
 	{
 		typedef typename vec_type::elem_type eT;
 		typedef typename vec_type::pod_type   T;
@@ -124,7 +127,9 @@ namespace arma_ext
 	 *	@param junk		reserved
 	 */
 	template <typename vec_type>
-	inline vec_type colon(const typename vec_type::pod_type start, const typename vec_type::pod_type end, const typename arma_Mat_Col_Row_only<vec_type>::result* junk = 0)
+	inline vec_type colon(const typename vec_type::pod_type start, 
+						  const typename vec_type::pod_type end, 
+						  const typename arma_Mat_Col_Row_only<vec_type>::result* junk = 0)
 	{
 		return colon<vec_type>(start, vec_type::pod_type(1), end);
 	}

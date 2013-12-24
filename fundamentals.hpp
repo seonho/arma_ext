@@ -45,7 +45,7 @@
 //!		@brief		Array indexing, concatenation, sorting, and reshping; set and bit-wise operations
 //!		@{
 //!			@defgroup	arr		Array Creation and Concatenation
-//!			@brief		Create or combine scalars, vectors, matricies, or arrays
+//!			@brief		Create or combine scalars, vectors, matrices, or arrays
 //
 //!			@defgroup	ind		Indexing
 //!			@brief		Access array elements.
@@ -117,7 +117,8 @@ namespace arma_ext
 
 			concurrency::parallel_for(uword(0), m, [&](uword i) {
 				for (uword j = 0 ; j < n ; j++) {
-					out.submat(span(r * i, r * (i + 1) - 1), span(c * j, c * (j + 1) - 1)).fill(X.at(i, j));
+					out.submat(span(r * i, r * (i + 1) - 1), 
+							   span(c * j, c * (j + 1) - 1)).fill(X.at(i, j));
 				}
 			});
 		}
@@ -215,7 +216,7 @@ namespace arma_ext
 	 *	@param n The count of leading dimensions to be shifted.
 	 *	@note	arma::Mat only support 2D array.
 	 *			If @c X is a row vector, then #shiftdim returns a column vector.<br>
-	 *			If @c X is a matrix, then #shiftdim returns a matrix that leading nonsingleton dimensions.
+	 *			If @c X is a matrix, then #shiftdim returns a matrix that leading non-singleton dimensions.
 	 */
 	template <typename T>
 	Mat<T> shiftdim(const Mat<T>& X, arma::shword n = 0)

@@ -88,10 +88,10 @@ namespace arma_ext
 				for (uword r = 0 ; r < mc ; r++) {
 					elem_type value = 0;
 
-					const uword minu = (r + 1 > mb) ? r - mb + 1 : 0/*std::max(r - mb + 1, uword(0))*/;
+					const uword minu = (r + 1 > mb) ? r - mb + 1 : 0;
 					const uword maxu = std::min(ma - 1, r);
 
-					const uword minv = (c + 1 > nb) ? c - nb + 1 : 0/*std::max(c - nb + 1, uword(0))*/;
+					const uword minv = (c + 1 > nb) ? c - nb + 1 : 0;
 					const uword maxv = std::min(na - 1, c);
 
 					for (uword v = minv ; v <= maxv ; v++) {

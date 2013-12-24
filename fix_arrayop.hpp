@@ -42,7 +42,7 @@
 
 #ifndef DOXYGEN
 
-/// Template function specialization of convert function used in conv_to class
+//! Template function specialization of convert function used in conv_to class
 template<>
 arma_hot inline static void arma::arrayops::convert(unsigned char* dest, const double* src, const uword n_elem)
 {

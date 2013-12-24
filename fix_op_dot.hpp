@@ -42,7 +42,7 @@
 
 #ifndef DOXYGEN
 
-/// Template function specialization for double, mat
+//! Template function specialization for double, mat
 template<>
 arma_hot
 inline

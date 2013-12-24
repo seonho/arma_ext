@@ -52,7 +52,8 @@ namespace arma_ext
 	 *	@return	 the rounded value
 	 */
 	template <typename T>
-	inline typename std::enable_if<!arma::is_arma_type<T>::value, T>::type round(const T& x) { return (T)arma::eop_aux::round(x); }
+	inline typename std::enable_if<!arma::is_arma_type<T>::value, T>::type 
+		round(const T& x) { return (T)arma::eop_aux::round(x); }
 
 	//! Modulus after division
 	template <typename vec_type>
@@ -64,11 +65,13 @@ namespace arma_ext
 		vec_type M;
 		switch (X.vec_state) {
 		case 0: // matrix
-			M = X - arma::conv_to<vec_type>::from(arma::floor(arma::conv_to<mat>::from(X) / (double)Y)) * Y;
+			M = X - arma::conv_to<vec_type>::from(
+				arma::floor(arma::conv_to<mat>::from(X) / (double)Y)) * Y;
 			break;
 		case 1:
 		case 2:
-			M = X - arma::conv_to<vec_type>::from(arma::floor(arma::conv_to<vec>::from(X) / (double)Y)) * Y;
+			M = X - arma::conv_to<vec_type>::from(
+				arma::floor(arma::conv_to<vec>::from(X) / (double)Y)) * Y;
 			break;
 		}
 		
