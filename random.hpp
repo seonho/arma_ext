@@ -43,12 +43,16 @@
 
 #include "mpl.hpp"
 
+#ifdef _MSC_VER
+
 #include <ppl.h>
 
 #if	(_MSC_VER <= 1600)
 /// From Microsoft Visual Studio 2012, Concurrency namespace has been changed to concurrency.
 /// For compatibility, namespace alias is used
 namespace concurrency = Concurrency;
+#endif
+
 #endif
 
 namespace arma_ext
@@ -155,9 +159,19 @@ namespace arma_ext
 	{
 		arma::vec values = arma_ext::rand<arma::vec>(n);
 		std::vector<std::pair<size_type, double> > pairs(n);
+        
+#ifdef _MSC_VER
 		concurrency::parallel_for(size_type(0), n, [&](size_type i) {
+#else
+        for (size_type i = 0 ; i < n ; i++) {
+#endif
 			pairs[i] = std::make_pair(i, values(i));
+#ifdef _MSC_VER
 		});
+#else
+        }
+                                  
+#endif
 
 		std::stable_sort(pairs.begin(), pairs.end(), [&](const std::pair<size_t, double>& a, const std::pair<size_t, double>& b)->bool {
 			return b.second > a.second;

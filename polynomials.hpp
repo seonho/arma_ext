@@ -79,7 +79,7 @@ namespace arma_ext
 	void roots(const vec_type& c, cx_vec& eigval, cx_mat& eigvec)
 	{
 		typedef typename vec_type::elem_type elem_type;
-		typedef typename Mat<elem_type> mat_type;
+		typedef Mat<elem_type> mat_type;
 		const uword n = c.n_elem - 1;
 		mat_type A = arma_ext::diag(ones<vec_type>(n - 1, 1), -1);
 		A.row(0) = -c(span(1, n)) / c[0];

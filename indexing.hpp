@@ -131,7 +131,7 @@ namespace arma_ext
 						  const typename vec_type::pod_type end, 
 						  const typename arma_Mat_Col_Row_only<vec_type>::result* junk = 0)
 	{
-		return colon<vec_type>(start, vec_type::pod_type(1), end);
+		return colon<vec_type>(start, typename vec_type::pod_type(1), end);
 	}
 
 	//!	@}

@@ -41,6 +41,12 @@
 namespace arma_ext
 {
 	using namespace arma;
+    
+#ifdef _MSC_VER
+#define ISNAN _isnan
+#else
+#define ISNAN std::isnan
+#endif
 
 	//!	@defgroup	logicalop Logical Operations
 	//!	@brief		True or false (Boolean) conditions.
@@ -69,7 +75,7 @@ namespace arma_ext
 		const double* iptr = A.memptr();
 		uword* optr = out.memptr();
 		for (uword i = 0 ; i < A.size() ; i++)
-			optr[i] = _isnan(iptr[i]) > 0 ? 1 : 0;
+			optr[i] = ISNAN(iptr[i]) > 0 ? 1 : 0;
 		
 		return out;
 	}
@@ -81,7 +87,7 @@ namespace arma_ext
 	 */
 	inline bool isnan(double value)
 	{
-		return _isnan(value) > 0 ? true : false;
+		return ISNAN(value) > 0 ? true : false;
 	}
 	
 	/**
@@ -90,14 +96,14 @@ namespace arma_ext
 	 *	@return A logical NOT of input array or scalar @c A.
 	 */
 	template <typename mat_type>
-	inline mat_type not(const mat_type& A)
+	inline mat_type logical_not(const mat_type& A)
 	{
 		return ones<mat_type>(A.n_elem) - A;
 	}
 
 	//! Template function specialization for #not.
 	template <>
-	inline uword not(const uword& A)
+	inline uword logical_not(const uword& A)
 	{
 		return (1 - A);
 	}

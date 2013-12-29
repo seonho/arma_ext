@@ -40,6 +40,8 @@
 
 #include <armadillo>
 
+#ifdef _MSC_VER
+
 #include <ppl.h>
 
 #if	(_MSC_VER <= 1600)
@@ -47,6 +49,11 @@
 /// For compatibility, namespace alias is used
 namespace concurrency = Concurrency;
 #endif
+#endif
+
+//#ifndef uchar
+typedef unsigned char uchar;
+//#endif
 
 namespace arma_ext
 {
@@ -247,12 +254,6 @@ namespace arma_ext
 	}
 
 	template <typename eT>
-	inline arma::Mat<eT> resizeAlongDim(const arma::Mat<eT> in, size_t dim, const arma::mat& weights, const arma::mat& indices)
-	{
-		return imresizemex<uchar>(in, weights.t(), indices.t(), dim);
-	}
-
-	template <typename eT>
 	arma::Mat<eT> imresizemex(arma::Mat<eT> in, 
 		arma::mat weights, 
 		arma::mat indices, 
@@ -271,9 +272,11 @@ namespace arma_ext
 
 		if (dim == 1)
 			in = in.t();
-
+#ifdef _MSC_VER
 		Concurrency::parallel_for(uword(0), out.n_cols, [&](uword c) {
-		//for (uword c = 0 ; c < out.n_cols ; c++) {
+#else
+		for (uword c = 0 ; c < out.n_cols ; c++) {
+#endif
 			eT* optr = out.colptr(c);
 			for (uword r = 0 ; r < out.n_rows ; r++) {
 				double value = 0;
@@ -285,8 +288,11 @@ namespace arma_ext
 
 				optr[r] = saturate_cast<eT>(value);
 			}
-		//}
+#ifdef _MSC_VER
 		});
+#else
+        }
+#endif
 
 		if (dim == 1) out = out.t();
 
@@ -294,6 +300,12 @@ namespace arma_ext
 	}
 
 #endif
+                                  
+    template <typename eT>
+    inline arma::Mat<eT> resizeAlongDim(const arma::Mat<eT> in, size_t dim, const arma::mat& weights, const arma::mat& indices)
+    {
+        return imresizemex<uchar>(in, weights.t(), indices.t(), dim);
+    }
 
 	/**
 	 *	@brief	Resize image
@@ -306,7 +318,7 @@ namespace arma_ext
 	template <typename eT>
 	arma::Mat<eT> imresize(const arma::Mat<eT>& A, uword width, uword height)
 	{
-		typedef Mat<eT>::size_type size_type;
+		typedef typename Mat<eT>::size_type size_type;
 
 		kernel_func kernel = &cubic;
 		double kernel_width = 4;
@@ -327,15 +339,21 @@ namespace arma_ext
 		// calculate interpolation weights and indices for each dimension
 		std::vector<arma::mat> weights(2);
 		std::vector<arma::mat> indices(2);
-		
+        
+#ifdef _MSC_VER
 		concurrency::parallel_invoke(
 			[&] {
+#endif
 				contribution(A.n_rows, height, scale(0), kernel, kernel_width, antialiasing, weights[0], indices[0]);
+#ifdef _MSC_VER
 			},
 			[&] {
+#endif
 				contribution(A.n_cols, width, scale(1), kernel, kernel_width, antialiasing, weights[1], indices[1]);
+#ifdef _MSC_VER
 			}
 		);
+#endif
 
 		arma::Mat<eT> B = A;
 
@@ -374,7 +392,7 @@ namespace arma_ext
 	template <typename T>
 	T padarray(const T& A, uword rows, uword cols)
 	{
-		typedef T::elem_type elem_type;
+		typedef typename T::elem_type elem_type;
 		return constantpad(A, rows, cols, elem_type(0), both);
 	}
 
@@ -405,7 +423,7 @@ namespace arma_ext
 	template <typename T>
 	T padarray(const T& A, uword rows, uword cols, pad_method method, pad_direction direction)
 	{
-		typedef T::elem_type elem_type;
+		typedef typename T::elem_type elem_type;
 		const uword size = sizeof(elem_type);
 
 		if (method == constant)
@@ -450,8 +468,7 @@ namespace arma_ext
 	template <typename T>
 	T constantpad(const T& A, uword rows, uword cols, typename T::elem_type padval, pad_direction direction)
 	{
-		typedef T::elem_type elem_type;
-		const uword size = sizeof(elem_type);
+		typedef typename T::elem_type elem_type;
 
 		T out;
 
@@ -489,6 +506,8 @@ namespace arma_ext
 			return symmetricpad(A, rows, cols, direction);
 		case replicate:
 			return replicatepad(A, rows, cols, direction);
+        default:
+            throw std::invalid_argument("method should be one of pad_method!");
 		}
 
 		return arma::field<arma::uvec>();
@@ -514,6 +533,8 @@ namespace arma_ext
 			case both:
 				indices(k) = arma::conv_to<uvec>::from(mod(colon<ivec>(-p, M + p - 1), M));
 				break;
+            default:
+                throw std::invalid_argument("direction should be one of pad_direction");
 			}
 		}
 

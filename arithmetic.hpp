@@ -52,14 +52,14 @@ namespace arma_ext
 	 *	@return	 the rounded value
 	 */
 	template <typename T>
-	inline typename std::enable_if<!arma::is_arma_type<T>::value, T>::type 
+	inline typename std::enable_if<!arma::is_arma_type<T>::value, T>::type
 		round(const T& x) { return (T)arma::eop_aux::round(x); }
 
 	//! Modulus after division
 	template <typename vec_type>
 	inline vec_type mod(const vec_type& X, typename vec_type::elem_type Y)
 	{
-		typedef vec_type::elem_type elem_type;
+		typedef typename vec_type::elem_type elem_type;
 		assert(Y != 0);
 		
 		vec_type M;

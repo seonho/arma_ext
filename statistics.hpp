@@ -47,6 +47,16 @@ namespace arma_ext
 	//!	@ingroup	stat
 	//!	@{
 
+    /**
+	 *	@brief	Average or mean of matrix elements
+	 *	@param A An input matrix
+	 */
+	template <typename mat_type>
+	inline typename mat_type::elem_type mean2(const mat_type& A)
+	{
+		return mean(vectorise(A));
+	}
+    
 	/**
 	 *	@brief	2-D correlation coefficient
 	 *	@param A
@@ -80,16 +90,6 @@ namespace arma_ext
 	inline double median_(const vec_type& x)
 	{
 		return median(x.elem(find(arma_ext::isnan(x) == 0)));
-	}
-
-	/**
-	 *	@brief	Average or mean of matrix elements
-	 *	@param A An input matrix
-	 */
-	template <typename mat_type>
-	inline typename mat_type::elem_type mean2(const mat_type& A)
-	{
-		return mean(vectorise(A));
 	}
 
 	//!	@}

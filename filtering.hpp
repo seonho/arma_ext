@@ -82,9 +82,12 @@ namespace arma_ext
 			uword mc = ma + mb - 1, nc = na + nb - 1;
 			
 			out.set_size(mc, nc);
-
+            
+#ifdef _MSC_VER
 			concurrency::parallel_for(uword(0), nc, [&](uword c) {
-			//for (uword c = 0 ; c < nc ; c++) {
+#else
+			for (uword c = 0 ; c < nc ; c++) {
+#endif
 				for (uword r = 0 ; r < mc ; r++) {
 					elem_type value = 0;
 
@@ -102,8 +105,11 @@ namespace arma_ext
 
 					out(r, c) = value;
 				}
-			//}
+#ifdef _MSC_VER
 			});
+#else
+            }
+#endif
 
 			switch (X.aux_uword) {
 			case full:

@@ -184,7 +184,7 @@ namespace arma_ext
 		while (any(todo)) {
 			// Work on rows that are now split but not yet processed
 			// rows = find(todo & ~conn);
-			uvec rows = find(todo % not(conn));
+			uvec rows = find(todo % logical_not(conn));
 			if (rows.empty()) break;
 
 			for (uword j = 0 ; j < 2 ; j++) {	// 0: left, 1: right
@@ -200,7 +200,7 @@ namespace arma_ext
 				}
 
 				// Also assign it to both children of any joined child non-leaf nodes
-				uvec joint = not(leaf);	// ~leaf
+				uvec joint = logical_not(leaf);	// ~leaf
 				uvec jointi = find(joint);
 				joint(jointi) = conn(children(jointi) - nleaves - 1);
 
@@ -229,7 +229,7 @@ namespace arma_ext
 	template <typename mat_type>
 	mat linkagemex(const mat_type& X)
 	{
-		#define ISNAN(a) (a != a)
+		#define ISNAN_(a) (a != a)
 
 		enum method_types {single, complete, average, weighted, centroid, median, ward} method_key;
 
@@ -321,7 +321,7 @@ namespace arma_ext
 			leaves.
 			*/
 
-			/* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /*
+			/*
 			find the "k","l" indices of the minimum distance "t1" in the remaining
 			half matrix, the new computed distances to the new cluster will be placed
 			in the row/col "l", then the leftmost column in the matrix of pairwise
@@ -331,7 +331,7 @@ namespace arma_ext
 			/*  OLD METHOD: search for the minimun in the whole "y" at every branch
 			iteration
 			t1 = inf;
-			p1 = ((m2m1 - bc) * bc) >> 1; /* finds where the remaining matrix starts
+			p1 = ((m2m1 - bc) * bc) >> 1; // finds where the remaining matrix starts
 			for (j=bc; j<m; j++) {
 			for (i=j+1; i<m; i++) {
 			t2 = y[p1++];
@@ -434,7 +434,7 @@ namespace arma_ext
 			obp[k] = obp[bc];        /* new cluster branch ptr */
 			obp[l] = bp;             /* leftmost column cluster branch ptr */
 
-			/* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /*
+			/*
 			Merges two observations/clusters ("k" and "l") by re-calculating new
 			distances for every remaining observation/cluster and place the
 			information in the row/col "l" */
@@ -502,6 +502,9 @@ namespace arma_ext
 				break;
 			case median:
 				t1 = t1/4;
+                break;
+            default:
+                break;
 			} /* switch (method_key) */
 
 			switch (method_key) {
@@ -536,7 +539,7 @@ namespace arma_ext
 			case single:
 				for (q=bn-bc-1; q>q1; q--) {
 					if (y[p1] < y[p2]) y[p2] = y[p1];
-					else if (ISNAN(y[p2])) y[p2] = y[p1];
+					else if (ISNAN_(y[p2])) y[p2] = y[p1];
 					if (y[p2] < t3)    t3 = y[p2];
 					p1 = p1 + q;
 					p2 = p2 + q;
@@ -545,7 +548,7 @@ namespace arma_ext
 				p2 = p2 + q;
 				for (q=q1-1;  q>q2; q--) {
 					if (y[p1] < y[p2]) y[p2] = y[p1];
-					else if (ISNAN(y[p2])) y[p2] = y[p1];
+					else if (ISNAN_(y[p2])) y[p2] = y[p1];
 					if (y[p2] < t3)    t3 = y[p2];
 					p1++;
 					p2 = p2 + q;
@@ -554,7 +557,7 @@ namespace arma_ext
 				p2++;
 				for (q=q2+1; q>0; q--) {
 					if (y[p1] < y[p2]) y[p2] = y[p1];
-					else if (ISNAN(y[p2])) y[p2] = y[p1];
+					else if (ISNAN_(y[p2])) y[p2] = y[p1];
 					if (y[p2] < t3)    t3 = y[p2];
 					p1++;
 					p2++;
@@ -564,7 +567,7 @@ namespace arma_ext
 			case complete:
 				for (q=bn-bc-1; q>q1; q--) {
 					if (y[p1] > y[p2]) y[p2] = y[p1];
-					else if (ISNAN(y[p2])) y[p2] = y[p1];
+					else if (ISNAN_(y[p2])) y[p2] = y[p1];
 					if (y[p2] < t3)    t3 = y[p2];
 					p1 = p1 + q;
 					p2 = p2 + q;
@@ -573,7 +576,7 @@ namespace arma_ext
 				p2 = p2 + q;
 				for (q=q1-1;  q>q2; q--) {
 					if (y[p1] > y[p2]) y[p2] = y[p1];
-					else if (ISNAN(y[p2])) y[p2] = y[p1];
+					else if (ISNAN_(y[p2])) y[p2] = y[p1];
 					if (y[p2] < t3)    t3 = y[p2];
 					p1++;
 					p2 = p2 + q;
@@ -582,7 +585,7 @@ namespace arma_ext
 				p2++;
 				for (q=q2+1; q>0; q--) {
 					if (y[p1] > y[p2]) y[p2] = y[p1];
-					else if (ISNAN(y[p2])) y[p2] = y[p1];
+					else if (ISNAN_(y[p2])) y[p2] = y[p1];
 					if (y[p2] < t3)    t3 = y[p2];
 					p1++;
 					p2++;
@@ -708,7 +711,7 @@ namespace arma_ext
 
 			} /* switch (method_key) */
 
-			/* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /* /*
+			/*
 			moves the leftmost column "bc" to row/col "k" */
 			if (k!=bc) {
 				q1 = bn - k;
@@ -780,7 +783,6 @@ namespace arma_ext
 	 */
 	uvec cluster(const mat& Z, double c)
 	{
-		uword m = Z.n_rows + 1;
 		// distance cutoff criterion for forming clusters
 		vec crit = Z.col(2);	// distance criterion
 
