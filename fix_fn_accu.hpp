@@ -42,12 +42,14 @@
 
 #ifndef DOXYGEN
 
+namespace arma {
+
 /// Template function specialization for double accumulation
 template <>
 arma_hot
 inline
 double
-arma::accu_proxy_linear(const Proxy<subview_row<double> >& P)
+accu_proxy_linear(const Proxy<subview_row<double> >& P)
 {
 	typedef subview_row<double>::elem_type      eT;
 	typedef Proxy<subview_row<double> >::ea_type ea_type;
@@ -83,5 +85,6 @@ arma::accu_proxy_linear(const Proxy<subview_row<double> >& P)
 //
 //	return arma_isfinite(result) ? result : op_mean::direct_mean_robust(X, row);
 //}
+}
 
 #endif

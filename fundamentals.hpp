@@ -112,9 +112,6 @@ namespace arma_ext
 
 			out.set_size(m * r, n * c);
 
-//			const uword out_n_rows = out.n_rows;
-//			const uword out_n_cols = out.n_cols;
-
 #ifdef _MSC_VER
 			concurrency::parallel_for(uword(0), m, [&](uword i) {
 #else
