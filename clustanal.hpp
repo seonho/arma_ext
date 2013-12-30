@@ -152,7 +152,7 @@ namespace arma_ext
 					for (uword k = 0 ; k < ti.n_elem ; k++) {
 						uword tval = ti(k);
 						uword childval = child(k) - 1;	// 0-based indexing
-						cdone(tval, j) = not(todo(childval));
+						cdone(tval, j) = logical_not(todo(childval));
 						conn(rows(tval)) = conn(rows(tval)) & conn(childval);
 					}
 				}
