@@ -79,8 +79,8 @@ namespace arma_ext
 	template <typename vec_type>
 	Mat<typename vec_type::elem_type> diag(const vec_type& v , int k = 0)
 	{
-		typedef vec_type::elem_type elem_type;
-		typedef Mat<typename elem_type> mat_type;
+		typedef typename vec_type::elem_type elem_type;
+		typedef Mat<elem_type> mat_type;
 
 		const uword n = (v.is_col ? v.n_rows : v.n_cols) + (uword)abs(k);
 		mat_type X = zeros<mat_type>(n, n);
@@ -112,15 +112,20 @@ namespace arma_ext
 
 			out.set_size(m * r, n * c);
 
-			const uword out_n_rows = out.n_rows;
-			const uword out_n_cols = out.n_cols;
-
+#ifdef _MSC_VER
 			concurrency::parallel_for(uword(0), m, [&](uword i) {
+#else
+            for (uword i = 0 ; i < m ; i++) {
+#endif
 				for (uword j = 0 ; j < n ; j++) {
 					out.submat(span(r * i, r * (i + 1) - 1), 
 							   span(c * j, c * (j + 1) - 1)).fill(X.at(i, j));
 				}
+#ifdef _MSC_VER
 			});
+#else
+            }
+#endif
 		}
 	};
 
@@ -147,7 +152,7 @@ namespace arma_ext
 	template <typename vec_type>
 	inline arma::Mat<typename vec_type::elem_type> ntuples(const vec_type& x, const vec_type& y)
 	{
-		arma::Mat<vec_type::elem_type> out(2, x.n_elem * y.n_elem);
+		arma::Mat<typename vec_type::elem_type> out(2, x.n_elem * y.n_elem);
 		out.row(0) = repcel(x, 1, y.n_elem);
 		out.row(1) = repmat(y, 1, x.n_elem);
 		return out;

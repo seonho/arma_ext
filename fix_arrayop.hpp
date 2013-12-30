@@ -42,9 +42,11 @@
 
 #ifndef DOXYGEN
 
+namespace arma {
+
 //! Template function specialization of convert function used in conv_to class
 template<>
-arma_hot inline static void arma::arrayops::convert(unsigned char* dest, const double* src, const uword n_elem)
+arma_hot inline void arrayops::convert(unsigned char* dest, const double* src, const uword n_elem)
 {
 	uword i, j;
 	for (i = 0, j = 1 ; j < n_elem ; i+=2, j+=2) {
@@ -54,6 +56,8 @@ arma_hot inline static void arma::arrayops::convert(unsigned char* dest, const d
 
 	if (i < n_elem)
 		dest[i] = arma_ext::saturate_cast<unsigned char>(src[i]);
+}
+    
 }
 
 #endif

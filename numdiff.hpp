@@ -78,8 +78,12 @@ namespace arma_ext
 
 		if (X.is_vec()) {
 			y.resize(std::max(X.n_rows - 1, (size_type)1), std::max(X.n_cols - 1, (size_type)1));
-			std::adjacent_difference(X.begin(), X.end(), 
+#ifdef _MSC_VER
+			std::adjacent_difference(X.begin(), X.end(),
 				stdext::unchecked_array_iterator<elem_type *>(y.begin()));
+#else
+            std::adjacent_difference(X.begin(), X.end(), y.begin());
+#endif
 			return y;
 		}
 		
@@ -87,8 +91,12 @@ namespace arma_ext
 		case 0: // row difference
 			y.resize(X.n_rows - 1, X.n_cols);
 			for (size_type c = 0 ; c < X.n_cols ; c++)
-				std::adjacent_difference(X.begin_col(c), X.end_col(c), 
+#ifdef _MSC_VER
+				std::adjacent_difference(X.begin_col(c), X.end_col(c),
 				stdext::unchecked_array_iterator<elem_type *>(y.begin_col(c)));
+#else
+                std::adjacent_difference(X.begin_col(c), X.end_col(c), y.begin_col(c));
+#endif
 			break;
 		case 1: // column difference
 			y.resize(X.n_rows, X.n_cols - 1);

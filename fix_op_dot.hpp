@@ -40,7 +40,10 @@
 
 #include <armadillo>
 
+
 #ifndef DOXYGEN
+
+namespace arma {
 
 //! Template function specialization for double, mat
 template<>
@@ -60,4 +63,5 @@ arma::op_dot::dot_and_copy_row(double* out, const mat& A, const uword row, const
 	return acc;
 }
 
+}
 #endif

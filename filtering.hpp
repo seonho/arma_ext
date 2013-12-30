@@ -82,9 +82,12 @@ namespace arma_ext
 			uword mc = ma + mb - 1, nc = na + nb - 1;
 			
 			out.set_size(mc, nc);
-
+            
+#ifdef _MSC_VER
 			concurrency::parallel_for(uword(0), nc, [&](uword c) {
-			//for (uword c = 0 ; c < nc ; c++) {
+#else
+			for (uword c = 0 ; c < nc ; c++) {
+#endif
 				for (uword r = 0 ; r < mc ; r++) {
 					elem_type value = 0;
 
@@ -102,8 +105,11 @@ namespace arma_ext
 
 					out(r, c) = value;
 				}
-			//}
+#ifdef _MSC_VER
 			});
+#else
+            }
+#endif
 
 			switch (X.aux_uword) {
 			case full:
@@ -146,58 +152,5 @@ namespace arma_ext
 		return Glue<T1, T2, glue_conv2>(A.get_ref(), B.get_ref(), conv_type);
 	}
 
-#ifndef DOXYGEN
-	template <typename eT>
-	__declspec(deprecated) arma::Mat<eT> conv2_(const arma::Mat<eT>& a, const arma::Mat<eT>& b, convolution_type conv_type = full)
-	{
-		// check arguments
-		uword ma = a.n_rows, na = a.n_cols;
-		uword mb = b.n_rows, nb = b.n_cols;
-
-		if (conv_type == valid)
-			assert(mb <= ma && nb <= na);
-
-		arma::Mat<eT> c = zeros(ma + mb - 1, na + nb - 1);
-
-		// do full convolution
-		for (uword j = 0 ; j < nb ; j++) {
-			uword c1 = j;
-			uword c2 = c1 + na - 1;
-			for (uword i = 0 ; i < mb ; i++) {
-				uword r1 = i;
-				uword r2 = r1 + ma - 1;
-				c(span(r1, r2), span(c1, c2)) = c(span(r1, r2), span(c1, c2)) + b(i, j) * a;
-				//concurrency::parallel_for (uword(0), na, [&](uword cl) {
-				////for(uword cl = 0 ; cl < na ; cl++)/ {
-				//	for (uword rk = 0 ; rk < ma ; rk++) {
-				//		c(rk + r1, cl + c1) += b(i, j) * a(rk, cl);
-				//	}
-				////}
-				//});
-			}
-		}
-
-		switch (conv_type) {
-		case same:
-			{
-				uword r1 = (uword)std::floor(mb / 2.0);	// zero-begin index corrected
-				uword r2 = r1 + ma - 1;
-				uword c1 = (uword)std::floor(nb / 2.0);	// zero-begin index corrected
-				uword c2 = c1 + na - 1;
-				c = c(span(r1, r2), span(c1, c2));
-			}
-			break;
-		case valid:
-			c = c(span(mb - 1,ma - 1), span(nb - 1,na - 1));
-			break;
-		case full:
-		default:
-			// nothing to do, full convolution done
-			break;
-		}
-
-		return c;
-	}
-#endif
 	//!	@}
 }
