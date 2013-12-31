@@ -73,7 +73,9 @@ namespace arma_ext
 	{
 		static std::uniform_real_distribution<T> ur;
 		T value = ur(eng);
-		ur(eng);
+#ifdef _MSC_VER
+		ur(eng); // skip one time
+#endif
 		return value;
 	}
 
