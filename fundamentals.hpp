@@ -93,7 +93,7 @@ namespace arma_ext
 	class op_repcel
 	{
 	public:
-		//!	@brief	A rudimentary implementation of the replicating cells (matrix elements).
+		//!	A rudimentary implementation of the replicating cells (matrix elements).
 		template <typename T1>
 		inline static void apply(Mat<typename T1::elem_type>& out, const Op<T1, op_repcel>& in)
 		{

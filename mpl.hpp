@@ -38,34 +38,40 @@
 
 #pragma once
 
-// Extend std namespace
-namespace std
-{
-	//!	Defines struct for "logical or"
-	template <bool _Test1, bool _Test2>
-	struct or_
-		: true_type
-	{
-	};
-	
-	//!	Specialization of "logical" or for false case.
-	template<>
-	struct or_<false, false>
-		: false_type
-	{
-	};
+#include <type_traits>
 
-	//!	Defines struct for "logical and"
-	template <bool _Test1, bool _Test2>
-	struct and_
-		: false_type
-	{
-	};
+namespace arma_ext {
 
-	//! Specialization of "logical and" for true case.
-	template <>
-	struct and_<true, true>
-		: true_type
+	//! Extend type_traits for template metaprogramming framework of compile-time algorithms, sequences and metafunctions.
+	namespace mpl
 	{
-	};
+		//!	Defines struct for "logical or"
+		template <bool _Test1, bool _Test2>
+		struct or_
+			: std::true_type
+		{
+		};
+
+		//!	Specialization of "logical" or for false case.
+		template<>
+		struct or_<false, false>
+			: std::false_type
+		{
+		};
+
+		//!	Defines struct for "logical and"
+		template <bool _Test1, bool _Test2>
+		struct and_
+			: std::false_type
+		{
+		};
+
+		//! Specialization of "logical and" for true case.
+		template <>
+		struct and_<true, true>
+			: std::true_type
+		{
+		};
+	}
+
 }

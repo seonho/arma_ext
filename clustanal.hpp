@@ -120,9 +120,7 @@ namespace arma_ext
 	}
 
 #ifndef DOXYGEN
-	/**
-	 *	@brief	Cut the tree at a specified point
-	 */
+	//!	Cut the tree at a specified point.
 	uvec checkcut(const mat& X, double cutoff, const vec& crit)
 	{
 		// See which nodes are below the cutoff, disconnect thoese that aren't
@@ -165,9 +163,7 @@ namespace arma_ext
 		return conn;
 	}
 
-	/**
-	 *	@brief	Assign cluster number
-	 */
+	//!	Assign cluster number
 	uvec labeltree(const mat& X, uvec conn)
 	{
 		uword n = X.n_rows;

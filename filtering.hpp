@@ -63,9 +63,8 @@ namespace arma_ext
 	public:
 		/**
 		 *	@brief	A rudimentary implementation of the 2D convolution operation.
-		 *	@param out 
-		 *	@param X 
-		 *	@return 
+		 *	@param out The convolution result.
+		 *	@param X The second parameter of convolution.
 		 */
 		template <typename T1, typename T2>
 		inline static void apply(Mat<typename T1::elem_type>&out, const Glue<T1, T2, glue_conv2>& X)
@@ -134,8 +133,7 @@ namespace arma_ext
 	};
 
 	/**
-	 *	@brief	2-D convolution of matrices A and B.<br>
-	 *			
+	 *	@brief	2-D convolution of matrices A and B.
 	 *	@param A			The input matrix.
 	 *	@param B			The convolution kernel matrix.
 	 *	@param conv_type	The convolution type

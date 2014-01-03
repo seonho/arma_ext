@@ -101,7 +101,7 @@ namespace arma_ext
 		return ones<mat_type>(A.n_elem) - A;
 	}
 
-	//! Template function specialization for #not.
+	//! Template function specialization for logical_not.
 	template <>
 	inline uword logical_not(const uword& A)
 	{

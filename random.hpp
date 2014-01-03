@@ -193,7 +193,7 @@ namespace arma_ext
 	 *	@return Permuted vector
 	 */
 	template <typename T>
-	typename std::enable_if<std::or_<T::is_col, T::is_row>::value, T>::type randvalues(const T& in, uword k, const typename enable_if< is_arma_type<T>::value>::result* junk = 0)
+	typename std::enable_if<mpl::or_<T::is_col, T::is_row>::value, T>::type randvalues(const T& in, uword k, const typename enable_if< is_arma_type<T>::value>::result* junk = 0)
 	{
 		T out;
 		uword N = in.n_elem;
