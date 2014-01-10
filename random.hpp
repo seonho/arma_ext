@@ -180,7 +180,11 @@ namespace arma_ext
 		});
 
 		arma::uvec out(n);
+#if __cplusplus > 201103L || defined(_MSC_VER)
 		auto itr = pairs.begin();
+#else
+		std::vector<std::pair<arma_ext::size_type, double> >::iterator itr = pairs.begin();
+#endif
 		out.imbue([&]() { return (itr++)->first; });
 		return out;
 	}
