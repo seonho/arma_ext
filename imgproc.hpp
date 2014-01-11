@@ -51,10 +51,6 @@ namespace concurrency = Concurrency;
 #endif
 #endif
 
-//#ifndef uchar
-typedef unsigned char uchar;
-//#endif
-
 namespace arma_ext
 {
 	using namespace arma;
@@ -72,65 +68,15 @@ namespace arma_ext
 	 *	@note	This partial implementation is taken from OpenCV. Only support double to unsigned char
 	 */
 	template <typename T1, typename T2>
-	static inline T1 saturate_cast(const T2& v) { return T1(v); }
-
-	template <typename T2>
-	static inline unsigned char saturate_cast(const T2& v)
+	static inline unsigned char saturate_cast(const T2& v, const typename std::enable_if<std::is_unsigned<T1>::value, bool>::type *junk = 0)
 	{
 		if (std::is_floating_point<T2>::value) {
 			T2 rv = round(v);
-			return (unsigned char)((unsigned)rv <= std::numeric_limits<unsigned char>::max() ? rv : rv > 0 ? std::numeric_limits<unsigned char>::max() : 0);
+			return (T1)((unsigned)rv <= std::numeric_limits<T1>::max() ? rv : rv > 0 ? std::numeric_limits<T1>::max() : 0);
 		}
 
-		return (unsigned char)((unsigned)v <= std::numeric_limits<unsigned char>::max() ? v : v > 0 ? std::numeric_limits<unsigned char>::max() : 0);
+		return (T1)((unsigned)v <= std::numeric_limits<T1>::max() ? v : v > 0 ? std::numeric_limits<T1>::max() : 0);
 	}
-
-	//template <typename eT>
-	//arma::Mat<eT> separable_conv(const arma::Mat<eT>& a, const arma::Mat<eT>& h, const arma::Mat<eT>& v)
-	//{
-	//	arma::Mat<eT> b(a.n_rows, a.n_cols);
-	//	arma::Mat<eT> c(a.n_rows, a.n_cols);
-	//	
-	//	uword offset = v.n_elem / 2;
-	//	// first stage
-	//	concurrency::parallel_for (uword(0), a.n_cols, [&](uword j) {
-	//	//for (uword j = 0 ; j < a.n_cols ; j++) {
-	//		for (uword i = 0 ; i < a.n_rows ; i++) {
-	//			eT conv = 0;
-	//			for (uword k = 0 ; k < v.n_elem ; k++) {
-	//				// bounds check for row index
-	//				if (i + k < offset || i + k >= a.n_rows)
-	//					continue;
-	//				conv += h(k) * a(i + k - offset, j);
-	//			}
-	//			b(i, j) = conv;
-	//		}
-	//	//}
-	//	});
-
-	//	b = b.t();
-
-	//	offset = h.n_elem / 2;
-	//	// second stage
-	//	concurrency::parallel_for (uword(0), a.n_cols, [&](uword j) {
-	//	//for (uword j = 0 ; j < a.n_cols ; j++) {
-	//		for (uword i = 0 ; i < a.n_rows ; i++) {
-	//			eT conv = 0;
-	//			for (uword k = 0 ; k < h.n_elem ; k++) {
-	//				// bound check for column index
-	//				if (j + k < offset || j + k >= b.n_rows)
-	//					continue;
-	//				conv += v(k) * b(j + k, i);
-	//			}
-	//			c(i, j) = conv;
-	//		}
-	//	//}
-	//	});
-
-	//	b.clear();
-
-	//	return c;
-	//}
 
 #ifndef DOXYGEN
 
@@ -304,7 +250,7 @@ namespace arma_ext
     template <typename eT>
     inline arma::Mat<eT> resizeAlongDim(const arma::Mat<eT> in, size_t dim, const arma::mat& weights, const arma::mat& indices)
     {
-        return imresizemex<uchar>(in, weights.t(), indices.t(), dim);
+        return imresizemex<eT>(in, weights.t(), indices.t(), dim);
     }
 
 	/**
