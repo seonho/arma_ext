@@ -361,7 +361,7 @@ namespace arma_ext
 						/*  this would be needed to solve NaN bug in MSVC*/
 						/*  if (!mxIsNaN(t2)) { */
 						if (t2 <= T[N-1]) {
-							for (h=N-1; ((t2 <= T[h-1]) && (h>0)); h--) {
+							for (h=N-1; ((h>0) && (t2 <= T[h-1])); h--) {
 								T[h]=T[h-1];
 								K[h]=K[h-1];
 								L[h]=L[h-1];
