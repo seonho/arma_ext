@@ -43,7 +43,7 @@ namespace arma_ext
 	using namespace arma;
     
 #ifdef _MSC_VER
-#define ISNAN _isnan
+#define ISNAN isnan
 #else
 #define ISNAN std::isnan
 #endif
@@ -69,14 +69,13 @@ namespace arma_ext
 	 *	@param A An input vector
 	 *	@returns an array the same sizes as A containing logical 1 (true) where the elements of A are NaNs and logical 0 (false) where they are not.
 	 */
-	uvec isnan(const vec& A)
+	template <typename vec_type>
+	uvec isnan(const vec_type& A, typename std::enable_if<std::is_floating_point<typename vec_type::elem_type>::value, bool>::type* junk = 0)
 	{
 		uvec out(A.size());
-		const double* iptr = A.memptr();
 		uword* optr = out.memptr();
-		for (uword i = 0 ; i < A.size() ; i++)
-			optr[i] = ISNAN(iptr[i]) > 0 ? 1 : 0;
-		
+		for (uword i = 0 ; i < A.n_elem ; i++)
+			optr[i] = ISNAN(A[i]) ? 1 : 0;
 		return out;
 	}
 
@@ -85,9 +84,10 @@ namespace arma_ext
 	 *	@param value the scalar value
 	 *	@return true/false
 	 */
-	inline bool isnan(double value)
+	template <typename T>
+	inline bool isnan(T value, typename std::enable_if<std::is_floating_point<T>::value, bool>::type* junk = 0)
 	{
-		return ISNAN(value) > 0 ? true : false;
+		return value != value;
 	}
 	
 	/**

@@ -68,13 +68,15 @@ namespace arma_ext
 	 *	@note	This partial implementation is taken from OpenCV. Only support double to unsigned char
 	 */
 	template <typename T1, typename T2>
-	static inline unsigned char saturate_cast(const T2& v, const typename std::enable_if<std::is_unsigned<T1>::value, bool>::type *junk = 0)
+	static inline T1 saturate_cast(const T2& v, const typename std::enable_if<std::is_unsigned<T1>::value, bool>::type *junk = 0)
 	{
 		if (std::is_floating_point<T2>::value) {
 			T2 rv = round(v);
+			//return (T1)(rv < 0 ? 0 : (rv > std::numeric_limits<T1>::max() ? std::numeric_limits<T1>::max() : rv));
 			return (T1)((unsigned)rv <= std::numeric_limits<T1>::max() ? rv : rv > 0 ? std::numeric_limits<T1>::max() : 0);
 		}
-
+		
+		//return (T1)(v < 0 ? 0 : (v > std::numeric_limits<T1>::max() ? std::numeric_limits<T1>::max() : v));
 		return (T1)((unsigned)v <= std::numeric_limits<T1>::max() ? v : v > 0 ? std::numeric_limits<T1>::max() : 0);
 	}
 
