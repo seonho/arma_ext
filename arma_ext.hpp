@@ -50,6 +50,12 @@ namespace arma_ext
 	typedef arma::uword size_type;
 }
 
+#if __cplusplus >= 201103L || defined(_MSC_VER)
+#include <type_traits>
+#else
+#include "std_type_traits.hpp"
+#endif
+
 #include "fundamentals.hpp"	// fundamentals
 #include "mathematics.hpp"	// mathematics
 

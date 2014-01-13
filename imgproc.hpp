@@ -126,7 +126,12 @@ namespace arma_ext
 		// Output-space coordinates.
 		arma::colvec x(out_length);
 		uword i = 1;
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 		x.imbue([&]() { return i++; });
+#else
+        for (uword _i = 0 ; _i < out_length ; _i++)
+            x[_i] = i++;
+#endif
 
 		// Input-space coordinates. Calculate the inverse mapping such that 0.5
 		// in output space maps to 0.5 in input space, and 0.5+scale in output

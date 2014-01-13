@@ -39,7 +39,11 @@
 #pragma once
 
 #include <armadillo>
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 #include <random>
+#else
+#include "std_random.hpp"
+#endif
 
 #include "mpl.hpp"
 
@@ -89,7 +93,13 @@ namespace arma_ext
 	inline typename std::enable_if<is_arma_type<T>::value, T>::type rand(const size_type rows, const size_type cols)
 	{
 		T out(rows, cols);
-		out.imbue(&rand<typename T::elem_type>);
+#if __cplusplus >= 201103L || defined(_MSC_VER)
+        out.imbue(&rand<typename T::elem_type>);
+#else
+        for (uword c = 0 ; c < cols ; c++)
+            for (uword r = 0 ; r < rows ; r++)
+                out.at(r, c) = rand<typename T::elem_type>();
+#endif
 		return out;
 	}
 	
@@ -102,7 +112,12 @@ namespace arma_ext
 	{
 		if (T::is_col || T::is_row) {
 			T out(n);
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 			out.imbue(&rand<typename T::elem_type>);
+#else
+            for (uword i = 0 ; i < n ; i++)
+                out[i] = rand<typename T::elem_type>();
+#endif
 			return out;
 		}
 
@@ -132,7 +147,13 @@ namespace arma_ext
 	inline typename std::enable_if<is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
 	{
 		T out(rows, cols);
-		out.imbue(&randn<typename T::elem_type>);
+#if __cplusplus >= 201103L || defined(_MSC_VER)
+        out.imbue(&randn<typename T::elem_type>);
+#else
+        for (uword c = 0 ; c < cols ; c++)
+            for (uword r = 0 ; r < rows ; r++)
+                out.at(r, c) = randn<typename T::elem_type>();
+#endif
 		return out;
 	}
 	
@@ -145,7 +166,12 @@ namespace arma_ext
 	{
 		if (T::is_col || T::is_row) {
 			T out(n);
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 			out.imbue(&randn<typename T::elem_type>);
+#else
+            for (uword i = 0 ; i < n ; i++)
+                out[i] = randn<typename T::elem_type>();
+#endif
 			return out;
 		}
 
@@ -180,12 +206,15 @@ namespace arma_ext
 		});
 
 		arma::uvec out(n);
-#if __cplusplus > 201103L || defined(_MSC_VER)
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 		auto itr = pairs.begin();
+        out.imbue([&]() { return (itr++)->first; });
 #else
-		std::vector<std::pair<arma_ext::size_type, double> >::iterator itr = pairs.begin();
+        std::vector<std::pair<arma_ext::size_type, double> >::iterator itr = pairs.begin();
+        for (size_type i = 0 ; i < n ; i++)
+            out[i] = (itr++)->first;
 #endif
-		out.imbue([&]() { return (itr++)->first; });
+		
 		return out;
 	}
 

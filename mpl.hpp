@@ -38,8 +38,6 @@
 
 #pragma once
 
-#include <type_traits>
-
 namespace arma_ext {
 
 	//! Extend type_traits for template metaprogramming framework of compile-time algorithms, sequences and metafunctions.
