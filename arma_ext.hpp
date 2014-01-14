@@ -52,8 +52,10 @@ namespace arma_ext
 
 #if __cplusplus >= 201103L || defined(_MSC_VER)
 #include <type_traits>
+namespace mpl = std;
 #else
-#include "std_type_traits.hpp"
+#include <tr1/type_traits>
+namespace mpl = std::tr1;
 #endif
 
 #include "fundamentals.hpp"	// fundamentals

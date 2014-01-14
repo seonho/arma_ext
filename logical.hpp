@@ -70,7 +70,7 @@ namespace arma_ext
 	 *	@returns an array the same sizes as A containing logical 1 (true) where the elements of A are NaNs and logical 0 (false) where they are not.
 	 */
 	template <typename vec_type>
-	uvec isnan(const vec_type& A, typename std::enable_if<std::is_floating_point<typename vec_type::elem_type>::value, bool>::type* junk = 0)
+	uvec isnan(const vec_type& A, typename mpl::enable_if<mpl::is_floating_point<typename vec_type::elem_type>::value, bool>::type* junk = 0)
 	{
 		uvec out(A.size());
 		uword* optr = out.memptr();
@@ -85,7 +85,7 @@ namespace arma_ext
 	 *	@return true/false
 	 */
 	template <typename T>
-	inline bool isnan(T value, typename std::enable_if<std::is_floating_point<T>::value, bool>::type* junk = 0)
+	inline bool isnan(T value, typename mpl::enable_if<mpl::is_floating_point<T>::value, bool>::type* junk = 0)
 	{
 		return value != value;
 	}

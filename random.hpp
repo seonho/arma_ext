@@ -73,7 +73,7 @@ namespace arma_ext
 	 *	@return	A pseudorandom value drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
 	template <typename T>
-	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type rand()
+	inline typename mpl::enable_if<mpl::is_floating_point<T>::value, T>::type rand()
 	{
 		static std::uniform_real_distribution<T> ur;
 		T value = ur(eng);
@@ -90,7 +90,7 @@ namespace arma_ext
 	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
 	template <typename T>
-	inline typename std::enable_if<is_arma_type<T>::value, T>::type rand(const size_type rows, const size_type cols)
+	inline typename mpl::enable_if<is_arma_type<T>::value, T>::type rand(const size_type rows, const size_type cols)
 	{
 		T out(rows, cols);
 #if __cplusplus >= 201103L || defined(_MSC_VER)
@@ -108,7 +108,7 @@ namespace arma_ext
 	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
 	template <typename T>
-	inline typename std::enable_if<is_arma_type<T>::value, T>::type rand(const size_type n)
+	inline typename mpl::enable_if<is_arma_type<T>::value, T>::type rand(const size_type n)
 	{
 		if (T::is_col || T::is_row) {
 			T out(n);
@@ -129,7 +129,7 @@ namespace arma_ext
 	 *	@return	A pseudorandom value drawn from the standard normal distribution.
 	 */
 	template <typename T>
-	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type randn()
+	inline typename mpl::enable_if<mpl::is_floating_point<T>::value, T>::type randn()
 	{
 		static std::normal_distribution<T> nr;
 		T value = nr(eng);
@@ -144,7 +144,7 @@ namespace arma_ext
 	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard normal distribution.
 	 */
 	template <typename T>
-	inline typename std::enable_if<is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
+	inline typename mpl::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
 	{
 		T out(rows, cols);
 #if __cplusplus >= 201103L || defined(_MSC_VER)
@@ -162,7 +162,7 @@ namespace arma_ext
 	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard normal distribution.
 	 */
 	template <typename T>
-	inline typename std::enable_if<is_arma_type<T>::value, T>::type randn(const size_type n)
+	inline typename mpl::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type n)
 	{
 		if (T::is_col || T::is_row) {
 			T out(n);
@@ -226,7 +226,7 @@ namespace arma_ext
 	 *	@return Permuted vector
 	 */
 	template <typename T>
-	typename std::enable_if<mpl::or_<T::is_col, T::is_row>::value, T>::type randvalues(const T& in, uword k, const typename enable_if< is_arma_type<T>::value>::result* junk = 0)
+	typename mpl::enable_if<mpl::or_<T::is_col, T::is_row>::value, T>::type randvalues(const T& in, uword k, const typename arma::enable_if< arma::is_arma_type<T>::value>::result* junk = 0)
 	{
 		T out;
 		uword N = in.n_elem;

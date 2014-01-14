@@ -38,38 +38,38 @@
 
 #pragma once
 
-namespace arma_ext {
+namespace std {
 
-	//! Extend type_traits for template metaprogramming framework of compile-time algorithms, sequences and metafunctions.
-	namespace mpl
-	{
+	////! Extend type_traits for template metaprogramming framework of compile-time algorithms, sequences and metafunctions.
+	//namespace mpl
+	//{
 		//!	Defines struct for "logical or"
 		template <bool _Test1, bool _Test2>
 		struct or_
-			: std::true_type
+			: mpl::true_type
 		{
 		};
 
 		//!	Specialization of "logical" or for false case.
 		template<>
 		struct or_<false, false>
-			: std::false_type
+			: mpl::false_type
 		{
 		};
 
 		//!	Defines struct for "logical and"
 		template <bool _Test1, bool _Test2>
 		struct and_
-			: std::false_type
+			: mpl::false_type
 		{
 		};
 
 		//! Specialization of "logical and" for true case.
 		template <>
 		struct and_<true, true>
-			: std::true_type
+			: mpl::true_type
 		{
 		};
-	}
+	//}
 
 }
