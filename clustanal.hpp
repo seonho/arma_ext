@@ -190,9 +190,18 @@ namespace arma_ext
 				uvec leaf = (children <= nleaves);
 				if (any(leaf)) {
 					uvec leafi = find(leaf);
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 					std::for_each(leafi.begin(), leafi.end(), [&](uword index) {
+#else
+					for (size_type i = 0 ; i < leafi.size() ; i++) {
+						uword index = leafi[i];
+#endif
 						T(children(index) - 1) = clustlist(rows(index), j);
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 					});
+#else
+					}
+#endif
 				}
 
 				// Also assign it to both children of any joined child non-leaf nodes
@@ -201,12 +210,21 @@ namespace arma_ext
 				joint(jointi) = conn(children(jointi) - nleaves - 1);
 
 				if (any(joint)) {
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 					std::for_each(jointi.begin(), jointi.end(), [&](uword index) {
+#else
+					for (size_type i = 0 ; i < jointi.size() ; i++) {
+						uword index = jointi[i];
+#endif
 						uword clustnum = clustlist(rows(index), j);
 						uword childnum = children(index) - nleaves - 1;
 						clustlist.row(childnum).fill(clustnum);
 						conn(childnum) = 0;
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 					});
+#else
+					}
+#endif
 				}
 			}
 

@@ -180,10 +180,19 @@ namespace arma_ext
 		// Clamp out-of-range indices; has the effect of replicating end-points.
 		//indices = min(max(1, indices), in_length);
 		//indices.transform([&](double val) { return std::min(std::max(1.0, val), (double)in_length); });
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 		std::for_each(indices.begin(), indices.end(), [&](double& val) {
+#else
+		for (size_type i = 0 ; i < indices.size() ; i++) {
+			double& val = indices[i];
+#endif
 		//concurrency::parallel_for_each(indices.begin(), indices.end(), [&](double& val) {
 			val = std::min(std::max(1.0, val), (double)in_length);
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 		});
+#else
+		}
+#endif
 
 		// If a column in weights is all zero, get rid of it.
 		arma::uvec alive = arma::ones<arma::uvec>(weights.n_cols);

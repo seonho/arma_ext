@@ -41,8 +41,10 @@
 #include <armadillo>
 #if __cplusplus >= 201103L || defined(_MSC_VER)
 #include <random>
+namespace rng = std;
 #else
-#include "std_random.hpp"
+#include <tr1/random>
+namespace rng = std::tr1;
 #endif
 
 #include "mpl.hpp"
@@ -66,7 +68,7 @@ namespace arma_ext
 	//!	@addtogroup	rand
 	//!	@{
 
-	std::mt19937 eng; ///< Mersenne twister engine.
+	rng::mt19937 eng; ///< Mersenne twister engine.
 
 	/**
 	 *	@brief	Uniformly distributed pseudorandom number.
@@ -75,7 +77,7 @@ namespace arma_ext
 	template <typename T>
 	inline typename mpl::enable_if<mpl::is_floating_point<T>::value, T>::type rand()
 	{
-		static std::uniform_real_distribution<T> ur;
+		static rng::uniform_real_distribution<T> ur;
 		T value = ur(eng);
 #ifdef _MSC_VER
 		ur(eng); // skip one time
@@ -131,7 +133,7 @@ namespace arma_ext
 	template <typename T>
 	inline typename mpl::enable_if<mpl::is_floating_point<T>::value, T>::type randn()
 	{
-		static std::normal_distribution<T> nr;
+		static rng::normal_distribution<T> nr;
 		T value = nr(eng);
 		nr(eng);
 		return value;
@@ -201,9 +203,19 @@ namespace arma_ext
                                   
 #endif
 
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 		std::stable_sort(pairs.begin(), pairs.end(), [&](const std::pair<size_t, double>& a, const std::pair<size_t, double>& b)->bool {
 			return b.second > a.second;
 		});
+#else
+		struct sort_pred {
+			bool operator() (const std::pair<size_t, double>& a, const std::pair<size_t, double>& b) {
+				return b.second > a.second;
+			}
+		};
+
+		std::stable_sort(pairs.begin(), pairs.end(), sort_pred());
+#endif
 
 		arma::uvec out(n);
 #if __cplusplus >= 201103L || defined(_MSC_VER)
