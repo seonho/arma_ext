@@ -40,6 +40,8 @@
 
 #include <armadillo>
 
+#include "mpl.hpp"
+
 namespace arma_ext
 {
 	using namespace arma;
@@ -87,11 +89,11 @@ namespace arma_ext
 	 *	@param x a vector
 	 */
 	template <typename vec_type>
-	inline double median_(const vec_type& x, typename mpl::enable_if<std::or_<vec_type::is_col, vec_type::is_row>::value, bool>::type* junk = 0)
+	inline double median_(const vec_type& x, typename std::enable_if<std::or_<vec_type::is_col, vec_type::is_row>::value, bool>::type* junk = 0)
 	{
-		typename mpl::enable_if<
+		typename std::enable_if<
 			std::or_<vec_type::is_col, vec_type::is_row>::value, 
-			typename mpl::conditional<vec_type::is_col, ucolvec, urowvec>::type
+			typename std::conditional<vec_type::is_col, ucolvec, urowvec>::type
 		>::type temp = find(arma_ext::isnan(x) == 0);
 
 		if (temp.empty())

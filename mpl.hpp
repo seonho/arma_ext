@@ -38,6 +38,12 @@
 
 #pragma once
 
+#if __cplusplus >= 201103L || defined(_MSC_VER)
+#include <type_traits>
+#else
+#include "type_traits_helper.hpp"
+#endif
+
 namespace std {
 
 	////! Extend type_traits for template metaprogramming framework of compile-time algorithms, sequences and metafunctions.
@@ -46,28 +52,28 @@ namespace std {
 		//!	Defines struct for "logical or"
 		template <bool _Test1, bool _Test2>
 		struct or_
-			: mpl::true_type
+			: std::true_type
 		{
 		};
 
 		//!	Specialization of "logical" or for false case.
 		template<>
 		struct or_<false, false>
-			: mpl::false_type
+			: std::false_type
 		{
 		};
 
 		//!	Defines struct for "logical and"
 		template <bool _Test1, bool _Test2>
 		struct and_
-			: mpl::false_type
+			: std::false_type
 		{
 		};
 
 		//! Specialization of "logical and" for true case.
 		template <>
 		struct and_<true, true>
-			: mpl::true_type
+			: std::true_type
 		{
 		};
 	//}

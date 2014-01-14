@@ -68,9 +68,9 @@ namespace arma_ext
 	 *	@note	This partial implementation is taken from OpenCV. Only support double to unsigned char
 	 */
 	template <typename T1, typename T2>
-	static inline T1 saturate_cast(const T2& v, const typename mpl::enable_if<mpl::is_unsigned<T1>::value, bool>::type *junk = 0)
+	static inline typename std::enable_if<std::is_unsigned<T1>::value, T1>::type saturate_cast(const T2& v)
 	{
-		if (mpl::is_floating_point<T2>::value) {
+		if (std::is_floating_point<T2>::value) {
 			T2 rv = round(v);
 			//return (T1)(rv < 0 ? 0 : (rv > std::numeric_limits<T1>::max() ? std::numeric_limits<T1>::max() : rv));
 			return (T1)((unsigned)rv <= std::numeric_limits<T1>::max() ? rv : rv > 0 ? std::numeric_limits<T1>::max() : 0);
@@ -136,7 +136,7 @@ namespace arma_ext
 		// Input-space coordinates. Calculate the inverse mapping such that 0.5
 		// in output space maps to 0.5 in input space, and 0.5+scale in output
 		// space maps to 1.5 in input space.
-		//cv::Mat u = x / scale + 0.5 * (1 - 1 / scale); - precision Â÷ÀÌ ¹ß»ý
+		//cv::Mat u = x / scale + 0.5 * (1 - 1 / scale); - precision ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½
 		double offset = 0.5 * (1 - 1 / scale);
 		arma::colvec u = x / scale + offset;
 
@@ -330,7 +330,11 @@ namespace arma_ext
 	}
 
 	//! Padding method
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 	enum pad_method : uword  {
+#else
+	enum pad_method {
+#endif
 		constant,		//! Pad array with constant value.
 		circular,		//! Pad with circular repetition of elements within the dimension.
 		replicate,		//! Pad by repeating border elements of array.
@@ -338,7 +342,11 @@ namespace arma_ext
 	};
 
 	//! Padding direction
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 	enum pad_direction : uword {
+#else
+	enum pad_direction {
+#endif
 		both,		//! Pads before the first element and after the last array element along each dimension.
 		pre,		//! Pad after the last array element along each dimension.
 		post		//! Pad before the first element along each dimension.

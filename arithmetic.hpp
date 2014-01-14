@@ -52,7 +52,7 @@ namespace arma_ext
 	 *	@return	 the rounded value
 	 */
 	template <typename T>
-	inline typename mpl::enable_if<!arma::is_arma_type<T>::value, T>::type
+	inline typename std::enable_if<!arma::is_arma_type<T>::value, T>::type
 		round(const T& x) { return (T)arma::eop_aux::round(x); }
 
 	//! Modulus after division

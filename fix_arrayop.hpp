@@ -50,8 +50,8 @@ arma_hot inline void arrayops::convert(unsigned char* dest, const double* src, c
 {
 	uword i, j;
 	for (i = 0, j = 1 ; j < n_elem ; i+=2, j+=2) {
-		dest[i] = arma_ext::saturate_cast<unsigned char>(src[i]);
-		dest[j] = arma_ext::saturate_cast<unsigned char>(src[j]);
+		dest[i] = arma_ext::saturate_cast<unsigned char, double>(src[i]);
+		dest[j] = arma_ext::saturate_cast<unsigned char, double>(src[j]);
 	}
 
 	if (i < n_elem)

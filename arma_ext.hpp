@@ -54,8 +54,7 @@ namespace arma_ext
 #include <type_traits>
 namespace mpl = std;
 #else
-#include <tr1/type_traits>
-namespace mpl = std::tr1;
+#include "type_traits_helper.hpp"
 #endif
 
 #include "fundamentals.hpp"	// fundamentals

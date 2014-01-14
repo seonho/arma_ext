@@ -48,7 +48,11 @@ namespace arma_ext
 	/**
 	 *	Convolution types
 	 */
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 	enum convolution_type : uword {
+#else
+	enum convolution_type {
+#endif
 		full,	//!	The full two-dimensional convolution (default).
 		same,	//!	The central part of the convolution of the same size as @c A.
 		valid	//!	Only those parts of the convolution  that are computed without the zero-padded edges.<br>Using this option, #size (C) = max([ma - max(0, mb - 1), na - max(0, nb - 1)], 0).

@@ -41,10 +41,20 @@
 #include <armadillo>
 #if __cplusplus >= 201103L || defined(_MSC_VER)
 #include <random>
-namespace rng = std;
 #else
-#include <tr1/random>
-namespace rng = std::tr1;
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/normal_distribution.hpp>
+
+namespace std {
+	typedef boost::random::mt19937 mt19937;
+	template <typename RealType = double>
+	class normal_distribution : public boost::random::normal_distribution<RealType> {};
+
+	template <typename RealType = double>
+	class uniform_real_distribution : public boost::random::uniform_real_distribution<RealType> {};
+}
+
 #endif
 
 #include "mpl.hpp"
@@ -65,19 +75,30 @@ namespace arma_ext
 {
 	using namespace arma;
 
+#if __cplusplus < 201103L && !defined(_MSC_VER)
+	namespace internal {
+		template <typename T1, typename T2>
+		struct sort_pair_by_second_descend {
+			bool operator() (const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) {
+				return b.second > a.second;
+			}
+		};
+	}
+#endif
+
 	//!	@addtogroup	rand
 	//!	@{
 
-	rng::mt19937 eng; ///< Mersenne twister engine.
+	std::mt19937 eng; ///< Mersenne twister engine.
 
 	/**
 	 *	@brief	Uniformly distributed pseudorandom number.
 	 *	@return	A pseudorandom value drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
 	template <typename T>
-	inline typename mpl::enable_if<mpl::is_floating_point<T>::value, T>::type rand()
+	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type rand()
 	{
-		static rng::uniform_real_distribution<T> ur;
+		static std::uniform_real_distribution<T> ur;
 		T value = ur(eng);
 #ifdef _MSC_VER
 		ur(eng); // skip one time
@@ -92,7 +113,7 @@ namespace arma_ext
 	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
 	template <typename T>
-	inline typename mpl::enable_if<is_arma_type<T>::value, T>::type rand(const size_type rows, const size_type cols)
+	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type rand(const size_type rows, const size_type cols)
 	{
 		T out(rows, cols);
 #if __cplusplus >= 201103L || defined(_MSC_VER)
@@ -110,7 +131,7 @@ namespace arma_ext
 	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
 	 */
 	template <typename T>
-	inline typename mpl::enable_if<is_arma_type<T>::value, T>::type rand(const size_type n)
+	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type rand(const size_type n)
 	{
 		if (T::is_col || T::is_row) {
 			T out(n);
@@ -131,9 +152,9 @@ namespace arma_ext
 	 *	@return	A pseudorandom value drawn from the standard normal distribution.
 	 */
 	template <typename T>
-	inline typename mpl::enable_if<mpl::is_floating_point<T>::value, T>::type randn()
+	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type randn()
 	{
-		static rng::normal_distribution<T> nr;
+		static std::normal_distribution<T> nr;
 		T value = nr(eng);
 		nr(eng);
 		return value;
@@ -146,7 +167,7 @@ namespace arma_ext
 	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard normal distribution.
 	 */
 	template <typename T>
-	inline typename mpl::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
+	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
 	{
 		T out(rows, cols);
 #if __cplusplus >= 201103L || defined(_MSC_VER)
@@ -164,7 +185,7 @@ namespace arma_ext
 	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard normal distribution.
 	 */
 	template <typename T>
-	inline typename mpl::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type n)
+	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type n)
 	{
 		if (T::is_col || T::is_row) {
 			T out(n);
@@ -208,13 +229,7 @@ namespace arma_ext
 			return b.second > a.second;
 		});
 #else
-		struct sort_pred {
-			bool operator() (const std::pair<size_t, double>& a, const std::pair<size_t, double>& b) {
-				return b.second > a.second;
-			}
-		};
-
-		std::stable_sort(pairs.begin(), pairs.end(), sort_pred());
+		std::stable_sort(pairs.begin(), pairs.end(), internal::sort_pair_by_second_descend<size_t, double>());
 #endif
 
 		arma::uvec out(n);
@@ -238,7 +253,7 @@ namespace arma_ext
 	 *	@return Permuted vector
 	 */
 	template <typename T>
-	typename mpl::enable_if<mpl::or_<T::is_col, T::is_row>::value, T>::type randvalues(const T& in, uword k, const typename arma::enable_if< arma::is_arma_type<T>::value>::result* junk = 0)
+	typename std::enable_if<std::or_<T::is_col, T::is_row>::value, T>::type randvalues(const T& in, uword k, const typename arma::enable_if< arma::is_arma_type<T>::value>::result* junk = 0)
 	{
 		T out;
 		uword N = in.n_elem;
@@ -246,7 +261,7 @@ namespace arma_ext
 		if (k > N) k = N;
 
 		if ((double)k / N < 0.0001) {
-			uvec i1 = conv_to<uvec>::from(arma::unique(arma::ceil(N * rand<vec>(k))));
+			uvec i1 = arma::unique( arma::conv_to<uvec>::from(arma::ceil(rand<vec>(k) * N)) );
 			out = in.elem(i1);
 		} else {
 			uvec i2 = randperm(N);

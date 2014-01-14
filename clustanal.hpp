@@ -49,6 +49,10 @@
 
 #include <armadillo>
 
+#if __cplusplus < 201103L && !defined(_MSC_VER)
+#define nullptr	NULL
+#endif
+
 namespace arma_ext
 {
 	using namespace arma;
@@ -59,7 +63,11 @@ namespace arma_ext
 	/**
 	 *	@brief	Distance metric
 	 */
+#if __cplusplus >= 201103L || defined(_MSC_VER)
 	enum distance_type : uword {
+#else
+	enum distance_type {
+#endif
 		euclidean,		///< Euclidean distance.
 		seuclidean,		///< Standarized Eucliean distance.
 		cityblock,		///< City block metric.
@@ -509,6 +517,7 @@ namespace arma_ext
 			switch (method_key) {
 			case centroid:
 				t1 = t1 * ((TEMPL) nk * (TEMPL) nl) / ((TEMPL) nkpnl * (TEMPL) nkpnl);
+				break;
 			case average:
 				/* Computes weighting ratios */
 				rnk = (TEMPL) nk / (TEMPL) nkpnl;
