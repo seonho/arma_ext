@@ -84,12 +84,19 @@ namespace arma_ext
 
 	/**
 	 *	@brief	Median without NaN
-	 *	@param x a vector or a matrix
+	 *	@param x a vector
 	 */
 	template <typename vec_type>
-	inline double median_(const vec_type& x)
+	inline double median_(const vec_type& x, typename mpl::enable_if<std::or_<vec_type::is_col, vec_type::is_row>::value, bool>::type* junk = 0)
 	{
-		return median(x.elem(find(arma_ext::isnan(x) == 0)));
+		typename mpl::enable_if<
+			std::or_<vec_type::is_col, vec_type::is_row>::value, 
+			typename mpl::conditional<vec_type::is_col, ucolvec, urowvec>::type
+		>::type temp = find(arma_ext::isnan(x) == 0);
+
+		if (temp.empty())
+			return arma::datum::nan;
+		return median(x.elem(temp));
 	}
 
 	//!	@}
