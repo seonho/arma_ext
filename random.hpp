@@ -39,9 +39,10 @@
 #pragma once
 
 #include <armadillo>
+
 #if __cplusplus >= 201103L || defined(_MSC_VER)
 #include <random>
-#else
+#elif USE_BOOST
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>
@@ -54,7 +55,17 @@ namespace std {
 	template <typename RealType = double>
 	class uniform_real_distribution : public boost::random::uniform_real_distribution<RealType> {};
 }
+#else
+#include <tr1/random>
 
+namespace std {
+	typedef std::tr1::random::mt19937 mt19937;
+	template <typename RealType = double>
+	class normal_distribution : public std::tr1::random::normal_distribution<RealType> {};
+
+	template <typename RealType = double>
+	class uniform_real_distribution : public std::tr1::random::uniform_real_distribution<RealType> {};
+}
 #endif
 
 #include "mpl.hpp"

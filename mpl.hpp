@@ -40,8 +40,11 @@
 
 #if __cplusplus >= 201103L || defined(_MSC_VER)
 #include <type_traits>
+namespace mpl = std;
+#elif USE_BOOST
+#include "type_traits_boost.hpp"
 #else
-#include "type_traits_helper.hpp"
+#include "type_traits_tr1.hpp"
 #endif
 
 namespace std {
