@@ -164,9 +164,11 @@ namespace arma_ext
 		//});
 
 		for (uword j = 0 ; j < P; j++) {
+			double* wptr = weights.colptr(j);
 		//concurrency::parallel_for(uword(0), P, [&](uword j) {
 			for (uword i = 0 ; i < u.n_elem ; i++) {
-				weights(i, j) = h(kernel, scale, weights(i, j));
+				//weights.at(i, j) = h(kernel, scale, weights(i, j));
+				wptr[i] = h(kernel, scale, wptr[i]);
 			}
 		//});
 		}
@@ -198,7 +200,7 @@ namespace arma_ext
 		arma::uvec alive = arma::ones<arma::uvec>(weights.n_cols);
 		for (uword c = 0 ; c < weights.n_cols ; c++) {
 		//concurrency::parallel_for (uword(0), weights.n_cols, [&](uword c) {
-			if (!arma::any(weights.col(c))) alive(c) = 0;
+			if (!arma::any(weights.col(c))) alive[c] = 0;
 		//});
 		}
 
@@ -221,9 +223,10 @@ namespace arma_ext
 		arma::mat indices, 
 		size_t dim)	// dir 0 is row first
 	{
-		//arma_ext::Size<uword> size(in.n_cols, in.n_rows);
 		uvec2 size;
-		size << in.n_rows << in.n_cols;
+		//size << in.n_rows << in.n_cols;
+		size[0] = in.n_rows;
+		size[1] = in.n_cols;
 
 		if (dim == 1)	// column first
 			std::swap(size(1), size(0));
@@ -245,8 +248,11 @@ namespace arma_ext
 				double* wptr = weights.colptr(r);
 				double* iptr = indices.colptr(r);
 
+				//for (uword p = 0 ; p < weights.n_rows ; p++)
+				//	value += wptr[p] * in.at((uword)iptr[p] - 1, c);
+				eT* inptr	= in.colptr(c);
 				for (uword p = 0 ; p < weights.n_rows ; p++)
-					value += wptr[p] * in((uword)iptr[p] - 1, c);
+					value += wptr[p] * inptr[(uword)iptr[p] - 1];
 
 				optr[r] = saturate_cast<eT>(value);
 			}
@@ -291,7 +297,9 @@ namespace arma_ext
 
 		//arma_ext::Size<double> scale(width / (double)A.n_cols, height / (double)A.n_rows);
 		arma::vec2 scale;
-		scale << height / (double)A.n_rows << width / (double)A.n_cols;
+		//scale << height / (double)A.n_rows << width / (double)A.n_cols;
+		scale[0] = height / (double)A.n_rows;
+		scale[1] = width / (double)A.n_cols;
 
 		// determine which dimension to resize first
 		size_type order[2] = {0, 1};

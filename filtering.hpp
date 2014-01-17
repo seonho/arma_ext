@@ -91,6 +91,8 @@ namespace arma_ext
 #else
 			for (uword c = 0 ; c < nc ; c++) {
 #endif
+				elem_type* outptr = out.colptr(c);
+
 				for (uword r = 0 ; r < mc ; r++) {
 					elem_type value = 0;
 
@@ -101,12 +103,16 @@ namespace arma_ext
 					const uword maxv = std::min(na - 1, c);
 
 					for (uword v = minv ; v <= maxv ; v++) {
+						const elem_type* aptr = a.colptr(v);
+						const elem_type* bptr = b.colptr(c - v);
 						for (uword u = minu ; u <= maxu ; u++) {
-							value += a(u, v) * b(r - u, c - v);
+							//value += a(u, v) * b(r - u, c - v);
+							value += aptr[u] *  bptr[r - u];
 						}
 					}
 
-					out(r, c) = value;
+					//out(r, c) = value;
+					outptr[r] = value;
 				}
 #ifdef _MSC_VER
 			});

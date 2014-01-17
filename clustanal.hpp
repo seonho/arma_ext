@@ -156,10 +156,10 @@ namespace arma_ext
 					// cdone(t,j) = ~todo(child);
 					// conn(rows(t)) = conn(rows(t)) & conn(child);
 					for (uword k = 0 ; k < ti.n_elem ; k++) {
-						uword tval = ti(k);
-						uword childval = child(k) - 1;	// 0-based indexing
-						cdone(tval, j) = logical_not(todo(childval));
-						conn(rows(tval)) = conn(rows(tval)) & conn(childval);
+						uword tval = ti[k];
+						uword childval = child[k] - 1;	// 0-based indexing
+						cdone.at(tval, j) = logical_not(todo[childval]);
+						conn[rows[tval]] = conn(rows[tval]) & conn[childval];
 					}
 				}
 			}
@@ -204,7 +204,7 @@ namespace arma_ext
 					for (size_type i = 0 ; i < leafi.size() ; i++) {
 						uword index = leafi[i];
 #endif
-						T(children(index) - 1) = clustlist(rows(index), j);
+						T(children(index) - 1) = clustlist(rows[index], j);
 #if __cplusplus >= 201103L || defined(_MSC_VER)
 					});
 #else
@@ -791,7 +791,7 @@ namespace arma_ext
 	 *			This is an simplified implementtion of linkagemex function
 	 */
 	template <typename mat_type>
-	mat linkage(const mat_type& X)
+	inline mat linkage(const mat_type& X)
 	{
 		return linkagemex(X);
 	}
@@ -808,7 +808,6 @@ namespace arma_ext
 	{
 		// distance cutoff criterion for forming clusters
 		vec crit = Z.col(2);	// distance criterion
-
 		uvec conn = checkcut(Z, c, crit);
 		return labeltree(Z, conn);
 	}
