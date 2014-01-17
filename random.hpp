@@ -59,12 +59,12 @@ namespace std {
 #include <tr1/random>
 
 namespace std {
-	typedef std::tr1::random::mt19937 mt19937;
+	typedef std::tr1::mt19937 mt19937;
 	template <typename RealType = double>
-	class normal_distribution : public std::tr1::random::normal_distribution<RealType> {};
+	class normal_distribution : public std::tr1::normal_distribution<RealType> {};
 
 	template <typename RealType = double>
-	class uniform_real_distribution : public std::tr1::random::uniform_real_distribution<RealType> {};
+	class uniform_real_distribution : public std::tr1::uniform_real<RealType> {};
 }
 #endif
 
