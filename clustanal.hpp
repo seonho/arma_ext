@@ -49,7 +49,7 @@
 
 #include <armadillo>
 
-#if __cplusplus < 201103L && !defined(_MSC_VER)
+#ifndef USE_CXX11
 #define nullptr	NULL
 #endif
 
@@ -63,7 +63,7 @@ namespace arma_ext
 	/**
 	 *	@brief	Distance metric
 	 */
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 	enum distance_type : uword {
 #else
 	enum distance_type {
@@ -198,14 +198,14 @@ namespace arma_ext
 				uvec leaf = (children <= nleaves);
 				if (any(leaf)) {
 					uvec leafi = find(leaf);
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 					std::for_each(leafi.begin(), leafi.end(), [&](uword index) {
 #else
 					for (size_type i = 0 ; i < leafi.size() ; i++) {
 						uword index = leafi[i];
 #endif
 						T(children(index) - 1) = clustlist(rows[index], j);
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 					});
 #else
 					}
@@ -218,7 +218,7 @@ namespace arma_ext
 				joint(jointi) = conn(children(jointi) - nleaves - 1);
 
 				if (any(joint)) {
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 					std::for_each(jointi.begin(), jointi.end(), [&](uword index) {
 #else
 					for (size_type i = 0 ; i < jointi.size() ; i++) {
@@ -228,7 +228,7 @@ namespace arma_ext
 						uword childnum = children(index) - nleaves - 1;
 						clustlist.row(childnum).fill(clustnum);
 						conn(childnum) = 0;
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 					});
 #else
 					}

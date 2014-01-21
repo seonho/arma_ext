@@ -112,8 +112,12 @@ namespace arma_ext
 
 			out.set_size(m * r, n * c);
 
-#ifdef _MSC_VER
+#if defined(USE_PPL)
 			concurrency::parallel_for(uword(0), m, [&](uword i) {
+#elif defined(USE_OPENMP)
+	#pragma omp parallel for
+			for (int si = 0 ; si < (int)m ; si++) {
+				uword i = (uword)si;
 #else
             for (uword i = 0 ; i < m ; i++) {
 #endif
@@ -121,7 +125,7 @@ namespace arma_ext
 					out.submat(span(r * i, r * (i + 1) - 1), 
 							   span(c * j, c * (j + 1) - 1)).fill(X.at(i, j));
 				}
-#ifdef _MSC_VER
+#ifdef USE_PPL
 			});
 #else
             }

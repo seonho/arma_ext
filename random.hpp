@@ -40,9 +40,9 @@
 
 #include <armadillo>
 
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#if defined(USE_CXX11)
 #include <random>
-#elif USE_BOOST
+#elif defined(USE_BOOST)
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>
@@ -70,10 +70,8 @@ namespace std {
 
 #include "mpl.hpp"
 
-#ifdef _MSC_VER
-
+#ifdef USE_PPL
 #include <ppl.h>
-
 #if	(_MSC_VER <= 1600)
 /// From Microsoft Visual Studio 2012, Concurrency namespace has been changed to concurrency.
 /// For compatibility, namespace alias is used
@@ -86,7 +84,7 @@ namespace arma_ext
 {
 	using namespace arma;
 
-#if __cplusplus < 201103L && !defined(_MSC_VER)
+#ifndef USE_CXX11
 	namespace internal {
 		template <typename T1, typename T2>
 		struct sort_pair_by_second_descend {
@@ -127,7 +125,7 @@ namespace arma_ext
 	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type rand(const size_type rows, const size_type cols)
 	{
 		T out(rows, cols);
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
         out.imbue(&rand<typename T::elem_type>);
 #else
         for (uword c = 0 ; c < cols ; c++)
@@ -146,7 +144,7 @@ namespace arma_ext
 	{
 		if (T::is_col || T::is_row) {
 			T out(n);
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 			out.imbue(&rand<typename T::elem_type>);
 #else
             for (uword i = 0 ; i < n ; i++)
@@ -181,12 +179,18 @@ namespace arma_ext
 	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
 	{
 		T out(rows, cols);
-#if __cplusplus >= 201103L || defined(_MSC_VER)
-        out.imbue(&randn<typename T::elem_type>);
+#ifdef USE_CXX11
+        //out.imbue(&randn<typename T::elem_type>);
+		typename T::elem_type* ptr = out.memptr();
+		for (uword i = 0 ; i < out.n_elem ; i++)
+			ptr[i] = randn<typename T::elem_type>();
 #else
-        for (uword c = 0 ; c < cols ; c++)
-            for (uword r = 0 ; r < rows ; r++)
-                out.at(r, c) = randn<typename T::elem_type>();
+        //for (uword c = 0 ; c < cols ; c++)
+        //    for (uword r = 0 ; r < rows ; r++)
+        //        out.at(r, c) = randn<typename T::elem_type>();
+		typename T::elem_type* ptr = out.memptr();
+		for (uword i = 0 ; i < out.n_elem ; i++)
+			ptr[i] = randn<typename T::elem_type>();
 #endif
 		return out;
 	}
@@ -200,7 +204,7 @@ namespace arma_ext
 	{
 		if (T::is_col || T::is_row) {
 			T out(n);
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 			out.imbue(&randn<typename T::elem_type>);
 #else
             for (uword i = 0 ; i < n ; i++)
@@ -222,20 +226,24 @@ namespace arma_ext
 		arma::vec values = arma_ext::rand<arma::vec>(n);
 		std::vector<std::pair<size_type, double> > pairs(n);
         
-#ifdef _MSC_VER
+#if defined(USE_PPL)
 		concurrency::parallel_for(size_type(0), n, [&](size_type i) {
+#elif defined(USE_OPENMP)
+	#pragma omp parallel for
+		for (int si = 0 ; si < (int)n ; si++) {
+			size_type i = (size_type)si;
 #else
         for (size_type i = 0 ; i < n ; i++) {
 #endif
 			pairs[i] = std::make_pair(i, values(i));
-#ifdef _MSC_VER
+#ifdef USE_PPL
 		});
 #else
         }
                                   
 #endif
 
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 		std::stable_sort(pairs.begin(), pairs.end(), [&](const std::pair<size_t, double>& a, const std::pair<size_t, double>& b)->bool {
 			return b.second > a.second;
 		});
@@ -244,7 +252,7 @@ namespace arma_ext
 #endif
 
 		arma::uvec out(n);
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 		auto itr = pairs.begin();
         out.imbue([&]() { return (itr++)->first; });
 #else

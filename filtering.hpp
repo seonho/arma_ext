@@ -48,7 +48,7 @@ namespace arma_ext
 	/**
 	 *	Convolution types
 	 */
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 	enum convolution_type : uword {
 #else
 	enum convolution_type {
@@ -86,8 +86,12 @@ namespace arma_ext
 			
 			out.set_size(mc, nc);
             
-#ifdef _MSC_VER
+#if defined(USE_PPL)
 			concurrency::parallel_for(uword(0), nc, [&](uword c) {
+#elif defined(USE_OPENMP)
+	#pragma omp parallel for
+			for (int sc = 0 ; sc < (int)nc ; sc++) {
+				uword c = (uword)sc;
 #else
 			for (uword c = 0 ; c < nc ; c++) {
 #endif
@@ -106,15 +110,15 @@ namespace arma_ext
 						const elem_type* aptr = a.colptr(v);
 						const elem_type* bptr = b.colptr(c - v);
 						for (uword u = minu ; u <= maxu ; u++) {
-							//value += a(u, v) * b(r - u, c - v);
+							//value += a.at(u, v) * b.at(r - u, c - v);
 							value += aptr[u] *  bptr[r - u];
 						}
 					}
 
-					//out(r, c) = value;
+					//out.at(r, c) = value;
 					outptr[r] = value;
 				}
-#ifdef _MSC_VER
+#ifdef USE_PPL
 			});
 #else
             }

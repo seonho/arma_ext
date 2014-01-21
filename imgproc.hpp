@@ -40,8 +40,7 @@
 
 #include <armadillo>
 
-#ifdef _MSC_VER
-
+#ifdef USE_PPL
 #include <ppl.h>
 
 #if	(_MSC_VER <= 1600)
@@ -126,7 +125,7 @@ namespace arma_ext
 		// Output-space coordinates.
 		arma::colvec x(out_length);
 		uword i = 1;
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 		x.imbue([&]() { return i++; });
 #else
         for (uword _i = 0 ; _i < out_length ; _i++)
@@ -182,7 +181,7 @@ namespace arma_ext
 		// Clamp out-of-range indices; has the effect of replicating end-points.
 		//indices = min(max(1, indices), in_length);
 		//indices.transform([&](double val) { return std::min(std::max(1.0, val), (double)in_length); });
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 		std::for_each(indices.begin(), indices.end(), [&](double& val) {
 #else
 		for (size_type i = 0 ; i < indices.size() ; i++) {
@@ -190,7 +189,7 @@ namespace arma_ext
 #endif
 		//concurrency::parallel_for_each(indices.begin(), indices.end(), [&](double& val) {
 			val = std::min(std::max(1.0, val), (double)in_length);
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 		});
 #else
 		}
@@ -237,8 +236,12 @@ namespace arma_ext
 
 		if (dim == 1)
 			in = in.t();
-#ifdef _MSC_VER
-		Concurrency::parallel_for(uword(0), out.n_cols, [&](uword c) {
+#if defined(USE_PPL)
+		concurrency::parallel_for(uword(0), out.n_cols, [&](uword c) {
+#elif defined(USE_OPENMP)
+	#pragma omp parallel for 
+		for (int sc = 0 ; sc < (int)out.n_cols ; sc++) {
+			uword c = (uword)sc;
 #else
 		for (uword c = 0 ; c < out.n_cols ; c++) {
 #endif
@@ -256,7 +259,7 @@ namespace arma_ext
 
 				optr[r] = saturate_cast<eT>(value);
 			}
-#ifdef _MSC_VER
+#ifdef USE_PPL
 		});
 #else
         }
@@ -310,17 +313,17 @@ namespace arma_ext
 		std::vector<arma::mat> weights(2);
 		std::vector<arma::mat> indices(2);
         
-#ifdef _MSC_VER
+#ifdef USE_PPL
 		concurrency::parallel_invoke(
 			[&] {
 #endif
 				contribution(A.n_rows, height, scale(0), kernel, kernel_width, antialiasing, weights[0], indices[0]);
-#ifdef _MSC_VER
+#ifdef USE_PPL
 			},
 			[&] {
 #endif
 				contribution(A.n_cols, width, scale(1), kernel, kernel_width, antialiasing, weights[1], indices[1]);
-#ifdef _MSC_VER
+#ifdef USE_PPL
 			}
 		);
 #endif
@@ -338,7 +341,7 @@ namespace arma_ext
 	}
 
 	//! Padding method
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 	enum pad_method : uword  {
 #else
 	enum pad_method {
@@ -350,7 +353,7 @@ namespace arma_ext
 	};
 
 	//! Padding direction
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#ifdef USE_CXX11
 	enum pad_direction : uword {
 #else
 	enum pad_direction {

@@ -50,10 +50,9 @@ namespace arma_ext
 	typedef arma::uword size_type;
 }
 
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#if defined(USE_CXX11)
 #include <type_traits>
-namespace mpl = std;
-#elif USE_BOOST
+#elif defined(USE_BOOST)
 #include "type_traits_boost.hpp"
 #else
 #include "type_traits_tr1.hpp"
