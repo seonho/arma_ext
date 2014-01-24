@@ -128,9 +128,9 @@ namespace arma_ext
 #ifdef USE_CXX11
         out.imbue(&rand<typename T::elem_type>);
 #else
-        for (uword c = 0 ; c < cols ; c++)
-            for (uword r = 0 ; r < rows ; r++)
-                out.at(r, c) = rand<typename T::elem_type>();
+		typename T::elem_type* ptr = out.memptr();
+		for (uword i = 0 ; i < out.n_elem ; i++)
+			ptr[i] = rand<typename T::elem_type>();
 #endif
 		return out;
 	}
@@ -185,9 +185,6 @@ namespace arma_ext
 		for (uword i = 0 ; i < out.n_elem ; i++)
 			ptr[i] = randn<typename T::elem_type>();
 #else
-        //for (uword c = 0 ; c < cols ; c++)
-        //    for (uword r = 0 ; r < rows ; r++)
-        //        out.at(r, c) = randn<typename T::elem_type>();
 		typename T::elem_type* ptr = out.memptr();
 		for (uword i = 0 ; i < out.n_elem ; i++)
 			ptr[i] = randn<typename T::elem_type>();
