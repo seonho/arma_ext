@@ -50,13 +50,13 @@ namespace arma_ext
 	typedef arma::uword size_type;
 }
 
-//#if defined(USE_CXX11)
+#if defined(USE_CXX11)
 #include <type_traits>
-//#elif defined(USE_TR1)
-//#include "type_traits_tr1.hpp"
-//#else
-//#include "type_traits_boost.hpp"
-//#endif
+#elif defined(USE_TR1)
+#include "type_traits_tr1.hpp"
+#else
+#include "type_traits_boost.hpp"
+#endif
 
 #include "fundamentals.hpp"	// fundamentals
 #include "mathematics.hpp"	// mathematics

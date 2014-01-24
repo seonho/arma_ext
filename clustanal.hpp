@@ -204,7 +204,7 @@ namespace arma_ext
 					for (size_type i = 0 ; i < leafi.size() ; i++) {
 						uword index = leafi[i];
 #endif
-						T(children(index) - 1) = clustlist(rows[index], j);
+						T[children[index] - 1] = clustlist.at(rows[index], j);
 #ifdef USE_CXX11
 					});
 #else

@@ -179,16 +179,13 @@ namespace arma_ext
 	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
 	{
 		T out(rows, cols);
-#ifdef USE_CXX11
-        //out.imbue(&randn<typename T::elem_type>);
+//#ifdef USE_CXX11
+//        out.imbue(&randn<typename T::elem_type>);
+//#else
 		typename T::elem_type* ptr = out.memptr();
 		for (uword i = 0 ; i < out.n_elem ; i++)
 			ptr[i] = randn<typename T::elem_type>();
-#else
-		typename T::elem_type* ptr = out.memptr();
-		for (uword i = 0 ; i < out.n_elem ; i++)
-			ptr[i] = randn<typename T::elem_type>();
-#endif
+//#endif
 		return out;
 	}
 	
@@ -201,12 +198,12 @@ namespace arma_ext
 	{
 		if (T::is_col || T::is_row) {
 			T out(n);
-#ifdef USE_CXX11
-			out.imbue(&randn<typename T::elem_type>);
-#else
+//#ifdef USE_CXX11
+//			out.imbue(&randn<typename T::elem_type>);
+//#else
             for (uword i = 0 ; i < n ; i++)
                 out[i] = randn<typename T::elem_type>();
-#endif
+//#endif
 			return out;
 		}
 
@@ -249,14 +246,14 @@ namespace arma_ext
 #endif
 
 		arma::uvec out(n);
-#ifdef USE_CXX11
-		auto itr = pairs.begin();
-        out.imbue([&]() { return (itr++)->first; });
-#else
+//#ifdef USE_CXX11
+//		auto itr = pairs.begin();
+//        out.imbue([&]() { return (itr++)->first; });
+//#else
         std::vector<std::pair<arma_ext::size_type, double> >::iterator itr = pairs.begin();
-        for (size_type i = 0 ; i < n ; i++)
+        for (uword i = 0 ; i < out.n_elem ; i++)
             out[i] = (itr++)->first;
-#endif
+//#endif
 		
 		return out;
 	}
