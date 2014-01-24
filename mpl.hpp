@@ -38,47 +38,35 @@
 
 #pragma once
 
-#if defined(USE_CXX11)
-#include <type_traits>
-namespace mpl = std;
-#elif defined(USE_BOOST)
-#include "type_traits_boost.hpp"
-#else
-#include "type_traits_tr1.hpp"
-#endif
-
 namespace std {
 
-	////! Extend type_traits for template metaprogramming framework of compile-time algorithms, sequences and metafunctions.
-	//namespace mpl
-	//{
-		//!	Defines struct for "logical or"
-		template <bool _Test1, bool _Test2>
-		struct or_
-			: std::true_type
-		{
-		};
+	//! Extend type_traits for template metaprogramming framework of compile-time algorithms, sequences and metafunctions.
 
-		//!	Specialization of "logical" or for false case.
-		template<>
-		struct or_<false, false>
-			: std::false_type
-		{
-		};
+	//!	Defines struct for "logical or"
+	template <bool _Test1, bool _Test2>
+	struct or_
+		: std::true_type
+	{
+	};
 
-		//!	Defines struct for "logical and"
-		template <bool _Test1, bool _Test2>
-		struct and_
-			: std::false_type
-		{
-		};
+	//!	Specialization of "logical" or for false case.
+	template<>
+	struct or_<false, false>
+		: std::false_type
+	{
+	};
 
-		//! Specialization of "logical and" for true case.
-		template <>
-		struct and_<true, true>
-			: std::true_type
-		{
-		};
-	//}
+	//!	Defines struct for "logical and"
+	template <bool _Test1, bool _Test2>
+	struct and_
+		: std::false_type
+	{
+	};
 
+	//! Specialization of "logical and" for true case.
+	template <>
+	struct and_<true, true>
+		: std::true_type
+	{
+	};
 }

@@ -42,7 +42,18 @@
 
 #if defined(USE_CXX11)
 #include <random>
-#elif defined(USE_BOOST)
+#elif defined(USE_TR1)
+#include <tr1/random>
+
+namespace std {
+	typedef std::tr1::mt19937 mt19937;
+	template <typename RealType = double>
+	class normal_distribution : public std::tr1::normal_distribution<RealType> {};
+
+	template <typename RealType = double>
+	class uniform_real_distribution : public std::tr1::uniform_real<RealType> {};
+}
+#else
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>
@@ -54,17 +65,6 @@ namespace std {
 
 	template <typename RealType = double>
 	class uniform_real_distribution : public boost::random::uniform_real_distribution<RealType> {};
-}
-#else
-#include <tr1/random>
-
-namespace std {
-	typedef std::tr1::mt19937 mt19937;
-	template <typename RealType = double>
-	class normal_distribution : public std::tr1::normal_distribution<RealType> {};
-
-	template <typename RealType = double>
-	class uniform_real_distribution : public std::tr1::uniform_real<RealType> {};
 }
 #endif
 
