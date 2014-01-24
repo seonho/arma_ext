@@ -128,7 +128,7 @@ namespace arma_ext
 #ifdef USE_CXX11
 		x.imbue([&]() { return i++; });
 #else
-        for ( ; _i < out_length ; _i++)
+        for (uword _i ; _i < out_length ; _i++)
             x[_i] = i++;
 #endif
 
