@@ -54,8 +54,10 @@ namespace arma_ext
 #include <type_traits>
 #elif defined(USE_TR1)
 #include "type_traits_tr1.hpp"
-#else
+#elif defined(USE_BOOST)
 #include "type_traits_boost.hpp"
+#else
+#include "type_traits_no.hpp"
 #endif
 
 #include "fundamentals.hpp"	// fundamentals

@@ -40,32 +40,11 @@
 
 #include <armadillo>
 
-#if defined(USE_CXX11)
-#include <random>
-#elif defined(USE_TR1)
-#include <tr1/random>
 
-namespace std {
-	typedef std::tr1::mt19937 mt19937;
-	template <typename RealType = double>
-	class normal_distribution : public std::tr1::normal_distribution<RealType> {};
-
-	template <typename RealType = double>
-	class uniform_real_distribution : public std::tr1::uniform_real<RealType> {};
-}
+#if defined(USE_CXX11) || defined(USE_BOOST)
+#include "rand_impl.hpp"
 #else
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
-#include <boost/random/normal_distribution.hpp>
-
-namespace std {
-	typedef boost::random::mt19937 mt19937;
-	template <typename RealType = double>
-	class normal_distribution : public boost::random::normal_distribution<RealType> {};
-
-	template <typename RealType = double>
-	class uniform_real_distribution : public boost::random::uniform_real_distribution<RealType> {};
-}
+#include "rand_impl_arma.hpp"
 #endif
 
 #include "mpl.hpp"
@@ -97,118 +76,6 @@ namespace arma_ext
 
 	//!	@addtogroup	rand
 	//!	@{
-
-	std::mt19937 eng; ///< Mersenne twister engine.
-
-	/**
-	 *	@brief	Uniformly distributed pseudorandom number.
-	 *	@return	A pseudorandom value drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
-	 */
-	template <typename T>
-	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type rand()
-	{
-		static std::uniform_real_distribution<T> ur;
-		T value = ur(eng);
-#ifdef _MSC_VER
-		ur(eng); // skip one time
-#endif
-		return value;
-	}
-
-	/**
-	 *	@brief	Uniformly distributed pseudorandom numbers.
-	 *	@param rows the number of rows.
-	 *	@param cols the number of columns.
-	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
-	 */
-	template <typename T>
-	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type rand(const size_type rows, const size_type cols)
-	{
-		T out(rows, cols);
-#ifdef USE_CXX11
-        out.imbue(&rand<typename T::elem_type>);
-#else
-		typename T::elem_type* ptr = out.memptr();
-		for (uword i = 0 ; i < out.n_elem ; i++)
-			ptr[i] = rand<typename T::elem_type>();
-#endif
-		return out;
-	}
-	
-	/**
-	 *	@brief	Overloaded function for rand.
-	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
-	 */
-	template <typename T>
-	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type rand(const size_type n)
-	{
-		if (T::is_col || T::is_row) {
-			T out(n);
-#ifdef USE_CXX11
-			out.imbue(&rand<typename T::elem_type>);
-#else
-            for (uword i = 0 ; i < n ; i++)
-                out[i] = rand<typename T::elem_type>();
-#endif
-			return out;
-		}
-
-		return arma_ext::rand<T>(n, n);
-	}
-	
-	/**
-	 *	@brief	Normally distributed pseudorandom numbers.
-	 *	@return	A pseudorandom value drawn from the standard normal distribution.
-	 */
-	template <typename T>
-	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type randn()
-	{
-		static std::normal_distribution<T> nr;
-		T value = nr(eng);
-		nr(eng);
-		return value;
-	}
-
-	/**
-	 *	@brief	Normally distributed pseudorandom numbers.
-	 *	@param rows the number of rows.
-	 *	@param cols the number of columns.
-	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard normal distribution.
-	 */
-	template <typename T>
-	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
-	{
-		T out(rows, cols);
-//#ifdef USE_CXX11
-//        out.imbue(&randn<typename T::elem_type>);
-//#else
-		typename T::elem_type* ptr = out.memptr();
-		for (uword i = 0 ; i < out.n_elem ; i++)
-			ptr[i] = randn<typename T::elem_type>();
-//#endif
-		return out;
-	}
-	
-	/**
-	 *	@brief	Overloaded function for randn.
-	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard normal distribution.
-	 */
-	template <typename T>
-	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type n)
-	{
-		if (T::is_col || T::is_row) {
-			T out(n);
-//#ifdef USE_CXX11
-//			out.imbue(&randn<typename T::elem_type>);
-//#else
-            for (uword i = 0 ; i < n ; i++)
-                out[i] = randn<typename T::elem_type>();
-//#endif
-			return out;
-		}
-
-		return arma_ext::randn<T>(n, n);
-	}
 
 	/**
 	 *	@brief	Random permutation.
