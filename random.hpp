@@ -64,10 +64,13 @@ namespace arma_ext
 	using namespace arma;
 
 #ifndef USE_CXX11
-	namespace internal {
+	namespace internal
+    {
 		template <typename T1, typename T2>
-		struct sort_pair_by_second_descend {
-			bool operator() (const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) {
+		struct sort_pair_by_second_descend
+        {
+			inline bool operator() (const std::pair<T1, T2>& a, const std::pair<T1, T2>& b)
+            {
 				return b.second > a.second;
 			}
 		};
@@ -105,7 +108,8 @@ namespace arma_ext
 #endif
 
 #ifdef USE_CXX11
-		std::stable_sort(pairs.begin(), pairs.end(), [&](const std::pair<size_t, double>& a, const std::pair<size_t, double>& b)->bool {
+		std::stable_sort(pairs.begin(), pairs.end(),
+                         [&](const std::pair<size_t, double>& a, const std::pair<size_t, double>& b)->bool {
 			return b.second > a.second;
 		});
 #else
@@ -133,7 +137,9 @@ namespace arma_ext
 	 *	@return Permuted vector
 	 */
 	template <typename T>
-	typename std::enable_if<std::or_<T::is_col, T::is_row>::value, T>::type randvalues(const T& in, uword k, const typename arma::enable_if< arma::is_arma_type<T>::value>::result* junk = 0)
+	typename std::enable_if<std::or_<T::is_col, T::is_row>::value, T>::type randvalues(const T& in,
+                                                                                       uword k,
+                                                                                       const typename arma::enable_if< arma::is_arma_type<T>::value>::result* junk = 0)
 	{
 		T out;
 		uword N = in.n_elem;

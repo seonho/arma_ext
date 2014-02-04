@@ -342,10 +342,11 @@ namespace arma_ext
 
 	//! Padding method
 #ifdef USE_CXX11
-	enum pad_method : uword  {
+	enum pad_method : uword
 #else
-	enum pad_method {
+	enum pad_method
 #endif
+    {
 		constant,		//! Pad array with constant value.
 		circular,		//! Pad with circular repetition of elements within the dimension.
 		replicate,		//! Pad by repeating border elements of array.
@@ -354,10 +355,11 @@ namespace arma_ext
 
 	//! Padding direction
 #ifdef USE_CXX11
-	enum pad_direction : uword {
+	enum pad_direction : uword
 #else
-	enum pad_direction {
+	enum pad_direction
 #endif
+    {
 		both,		//! Pads before the first element and after the last array element along each dimension.
 		pre,		//! Pad after the last array element along each dimension.
 		post		//! Pad before the first element along each dimension.

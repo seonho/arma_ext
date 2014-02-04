@@ -64,10 +64,11 @@ namespace arma_ext
 	 *	@brief	Distance metric
 	 */
 #ifdef USE_CXX11
-	enum distance_type : uword {
+	enum distance_type : uword
 #else
-	enum distance_type {
+	enum distance_type
 #endif
+    {
 		euclidean,		///< Euclidean distance.
 		seuclidean,		///< Standarized Eucliean distance.
 		cityblock,		///< City block metric.
