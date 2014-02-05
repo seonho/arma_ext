@@ -46,6 +46,8 @@ namespace arma_ext
     
 #ifdef _MSC_VER
 #define ISNAN isnan
+#elif defined(__VXWORKS__)
+#define ISNAN(a) (a) != (a)
 #else
 #define ISNAN std::isnan
 #endif
