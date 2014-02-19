@@ -72,7 +72,7 @@ namespace arma_ext
 	//! template function specialization for double type
 	inline size_type sub2ind(double rows, double cols, double r, double c)
 	{
-		return sub2ind((size_type)round(rows), (size_type)round(cols), (size_type)round(r), (size_type)round(c));
+		return sub2ind((size_type)arma_ext::round(rows), (size_type)arma_ext::round(cols), (size_type)arma_ext::round(r), (size_type)arma_ext::round(c));
 	}
 
 	/**

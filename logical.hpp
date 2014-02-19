@@ -92,7 +92,7 @@ namespace arma_ext
 	template <typename T>
 	inline bool isnan(T value, typename std::enable_if<std::is_floating_point<T>::value, bool>::type* junk = 0)
 	{
-		return value != value;
+		return ISNAN(value);
 	}
 	
 	/**

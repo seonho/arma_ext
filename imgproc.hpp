@@ -70,13 +70,13 @@ namespace arma_ext
 	static inline typename std::enable_if<std::is_unsigned<T1>::value, T1>::type saturate_cast(const T2& v)
 	{
 		if (std::is_floating_point<T2>::value) {
-			T2 rv = round(v);
-			//return (T1)(rv < 0 ? 0 : (rv > std::numeric_limits<T1>::max() ? std::numeric_limits<T1>::max() : rv));
-			return (T1)((unsigned)rv <= std::numeric_limits<T1>::max() ? rv : rv > 0 ? std::numeric_limits<T1>::max() : 0);
+			T2 rv = (T2)arma_ext::round(v);
+			return (T1)(rv < 0 ? 0 : (rv > std::numeric_limits<T1>::max() ? std::numeric_limits<T1>::max() : rv));
+			//return (T1)((unsigned)rv <= std::numeric_limits<T1>::max() ? rv : rv > 0 ? std::numeric_limits<T1>::max() : 0);
 		}
 		
-		//return (T1)(v < 0 ? 0 : (v > std::numeric_limits<T1>::max() ? std::numeric_limits<T1>::max() : v));
-		return (T1)((unsigned)v <= std::numeric_limits<T1>::max() ? v : v > 0 ? std::numeric_limits<T1>::max() : 0);
+		return (T1)(v < 0 ? 0 : (v > std::numeric_limits<T1>::max() ? std::numeric_limits<T1>::max() : v));
+		//return (T1)((unsigned)v <= std::numeric_limits<T1>::max() ? v : v > 0 ? std::numeric_limits<T1>::max() : 0);
 	}
 
 #ifndef DOXYGEN
@@ -235,7 +235,7 @@ namespace arma_ext
 		Mat<eT> out(size(0), size(1));
 
 		if (dim == 1)
-			in = in.t();
+			inplace_strans(in);
 #if defined(USE_PPL)
 		concurrency::parallel_for(uword(0), out.n_cols, [&](uword c) {
 #elif defined(USE_OPENMP)
