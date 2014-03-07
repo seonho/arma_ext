@@ -45,11 +45,11 @@ namespace arma_ext
 	using namespace arma;
     
 #ifdef _MSC_VER
-#define ISNAN isnan
+#define ISNAN(a) (_isnan(a) != 0)
 #elif defined(__VXWORKS__)
 #define ISNAN(a) (a) != (a)
 #else
-#define ISNAN std::isnan
+#define ISNAN(a) std::isnan(a)
 #endif
 
 	//!	@defgroup	logicalop Logical Operations
