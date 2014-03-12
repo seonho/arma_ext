@@ -47,22 +47,16 @@ namespace arma_ext
 	//!	@addtogroup	arit
 	//!	@{
 
-#ifdef __VXWORKS__
-	template <typename T>
-	inline typename enable_if2<!is_arma_type<T>::value, T>::result round(const T& x)
-	{
-		return x > (T)0 ? (T)::floor((double)x + 0.5) : (T)::ceil((double)x - 0.5);
-	}	
-#else
 	/**
 	 *	@brief	Round operation for scalar value.
 	 *	@param x the given scalar value
 	 *	@return	 the rounded value
 	 */
 	template <typename T>
-	inline typename std::enable_if<!arma::is_arma_type<T>::value, T>::type
-		round(const T& x) { return (T)arma::eop_aux::round(x); }
-#endif
+	inline typename std::enable_if<!arma::is_arma_type<T>::value, T>::type round(const T& x)
+	{
+		return (T)arma::eop_aux::round(x);
+	}
 
 	//! Modulus after division
 	template <typename vec_type>

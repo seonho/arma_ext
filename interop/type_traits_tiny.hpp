@@ -1,6 +1,6 @@
 /**
- *	@file		type_traits_tr1.hpp
- *	@brief		An implementation of type traits functions using tr1
+ *	@file		type_traits_tiny.hpp
+ *	@brief		An implementation of type traits functions
  *	@author		seonho.oh@gmail.com
  *	@date		2013-07-01
  *	@version	1.0
@@ -38,21 +38,28 @@
 
 #pragma once
 
-#include <tr1/type_traits>
-
 namespace std
 {
-	template <bool B, class T = void> struct enable_if {};
-	template <class T> struct enable_if<true, T> { typedef T type; };
-
-	template <class T> struct is_unsigned : std::tr1::is_unsigned<T> {};
-	template <class T> struct is_floating_point : std::tr1::is_floating_point<T> {};
-	template <typename T, typename U> struct is_same : std::tr1::is_same<T, U> {};
-
-	template <bool B, class T, class U> struct conditional {};
-	template <class T, class U> struct conditional <true, T, U> { typedef T type; };
-	template <class T, class U> struct conditional <false, T, U> { typedef U type; };
-
-	typedef std::tr1::true_type  true_type;
-	typedef std::tr1::false_type false_type;
+	template <bool B, class T = void> struct enable_if { typedef T type; };
+	template <class T> struct enable_if<false, T> {}; 
+	
+	template <class T> struct is_unsigned			{ static const bool value = false; };
+	template <> struct is_unsigned<unsigned char>	{ static const bool value = true; };
+	template <> struct is_unsigned<unsigned short>	{ static const bool value = true; };
+	template <> struct is_unsigned<unsigned int>	{ static const bool value = true; };
+	template <> struct is_unsigned<unsigned long>	{ static const bool value = true; };
+	
+	template <class T> struct is_floating_point		{ static const bool value = false; };
+	template <> struct is_floating_point<float>		{ static const bool value = true; };
+	template <> struct is_floating_point<double>	{ static const bool value = true; };
+	
+	template <typename T, typename U> struct is_same	{ static const bool value = false; };
+	template <typename T> struct is_same<T, T>			{ static const bool value = true; };
+	
+	template <bool B, class T, class U> struct conditional	{ };
+	template <class T, class U> struct conditional<true, T, U>	{ typedef T type; };
+	template <class T, class U> struct conditional<false, T, U>	{ typedef U type; };
+	
+	struct true_type	{ static const bool value = true; };
+	struct false_type	{ static const bool value = false; };
 }

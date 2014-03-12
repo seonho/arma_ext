@@ -49,7 +49,7 @@
 
 #include <armadillo>
 
-#ifndef USE_CXX11
+#ifndef ARMA_EXT_USE_CPP11
 #define nullptr	NULL
 #endif
 
@@ -63,7 +63,7 @@ namespace arma_ext
 	/**
 	 *	@brief	Distance metric
 	 */
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 	enum distance_type : uword
 #else
 	enum distance_type
@@ -199,14 +199,14 @@ namespace arma_ext
 				uvec leaf = (children <= nleaves);
 				if (any(leaf)) {
 					uvec leafi = find(leaf);
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 					std::for_each(leafi.begin(), leafi.end(), [&](uword index) {
 #else
 					for (size_type i = 0 ; i < leafi.size() ; i++) {
 						uword index = leafi[i];
 #endif
 						T[children[index] - 1] = clustlist.at(rows[index], j);
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 					});
 #else
 					}
@@ -219,7 +219,7 @@ namespace arma_ext
 				joint(jointi) = conn(children(jointi) - nleaves - 1);
 
 				if (any(joint)) {
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 					std::for_each(jointi.begin(), jointi.end(), [&](uword index) {
 #else
 					for (size_type i = 0 ; i < jointi.size() ; i++) {
@@ -229,7 +229,7 @@ namespace arma_ext
 						uword childnum = children(index) - nleaves - 1;
 						clustlist.row(childnum).fill(clustnum);
 						conn(childnum) = 0;
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 					});
 #else
 					}

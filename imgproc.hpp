@@ -125,7 +125,7 @@ namespace arma_ext
 		// Output-space coordinates.
 		arma::colvec x(out_length);
 		uword i = 1;
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 		x.imbue([&]() { return i++; });
 #else
         for (uword _i = 0 ; _i < out_length ; _i++)
@@ -181,7 +181,7 @@ namespace arma_ext
 		// Clamp out-of-range indices; has the effect of replicating end-points.
 		//indices = min(max(1, indices), in_length);
 		//indices.transform([&](double val) { return std::min(std::max(1.0, val), (double)in_length); });
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 		std::for_each(indices.begin(), indices.end(), [&](double& val) {
 #else
 		for (size_type i = 0 ; i < indices.size() ; i++) {
@@ -189,7 +189,7 @@ namespace arma_ext
 #endif
 		//concurrency::parallel_for_each(indices.begin(), indices.end(), [&](double& val) {
 			val = std::min(std::max(1.0, val), (double)in_length);
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 		});
 #else
 		}
@@ -341,7 +341,7 @@ namespace arma_ext
 	}
 
 	//! Padding method
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 	enum pad_method : uword
 #else
 	enum pad_method
@@ -354,7 +354,7 @@ namespace arma_ext
 	};
 
 	//! Padding direction
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 	enum pad_direction : uword
 #else
 	enum pad_direction

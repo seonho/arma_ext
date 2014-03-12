@@ -44,12 +44,12 @@ namespace arma_ext
 {
 	using namespace arma;
     
-#ifdef _MSC_VER
+#if defined(_WIN32) || defined(_WIN64)
 #define ISNAN(a) (_isnan(a) != 0)
-#elif defined(__VXWORKS__)
-#define ISNAN(a) (a) != (a)
-#else
+#elif __cplusplus >= 201103L
 #define ISNAN(a) std::isnan(a)
+#else // rest of others (e.g. VxWorks)
+#define ISNAN(a) (a) != (a)
 #endif
 
 	//!	@defgroup	logicalop Logical Operations
@@ -80,7 +80,7 @@ namespace arma_ext
 			typename std::conditional<vec_type::is_col, ucolvec, urowvec>::type>::type out(A.size());
 		uword* optr = out.memptr();
 		for (uword i = 0 ; i < A.n_elem ; i++)
-			optr[i] = ISNAN(A[i]) ? 1 : 0;
+			optr[i] = ISNAN(A[i]);
 		return out;
 	}
 

@@ -40,11 +40,10 @@
 
 #include <armadillo>
 
-
-#if defined(USE_CXX11) || defined(USE_BOOST)
-#include "rand_impl.hpp"
+#ifdef ARMA_EXT_USE_CPP11
+#include <random>
 #else
-#include "rand_impl_arma.hpp"
+#pragma message "Compiling " __FILE__ " with armadillo randomizer functions."
 #endif
 
 #include "mpl.hpp"
@@ -63,7 +62,7 @@ namespace arma_ext
 {
 	using namespace arma;
 
-#ifndef USE_CXX11
+#ifndef ARMA_EXT_USE_CPP11
 	namespace internal
     {
 		template <typename T1, typename T2>
@@ -79,6 +78,110 @@ namespace arma_ext
 
 	//!	@addtogroup	rand
 	//!	@{
+
+#ifdef ARMA_EXT_USE_CPP11
+	std::mt19937 eng; ///< Mersenne twister engine.
+#endif
+
+	/**
+	 *	@brief	Uniformly distributed pseudorandom number.
+	 *	@return	A pseudorandom value drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
+	 */
+	template <typename T>
+	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type rand()
+	{
+#ifdef ARMA_EXT_USE_CPP11
+		static std::uniform_real_distribution<T> ur;
+		T value = ur(eng);
+		ur(eng); // skip one time
+		return value;
+#else
+		return arma::randu<T>();
+#endif
+	}
+
+	/**
+	 *	@brief	Uniformly distributed pseudorandom numbers.
+	 *	@param rows the number of rows.
+	 *	@param cols the number of columns.
+	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
+	 */
+	template <typename T>
+	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type rand(const size_type rows, const size_type cols)
+	{
+#ifdef ARMA_EXT_USE_CPP11
+		T out(rows, cols);
+        out.imbue(&rand<typename T::elem_type>);
+		return out;
+#else
+		return randu<T>(rows, cols);
+#endif
+	}
+	
+	/**
+	 *	@brief	Overloaded function for rand.
+	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard uniform distribution on the open interval \f$(0, 1)\f$.
+	 */
+	template <typename T>
+	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type rand(const size_type n)
+	{
+		if (T::is_col)
+			return arma_ext::rand<T>(n, 1);
+		else if (T::is_row)
+			return arma_ext::rand<T>(1, n);
+		else
+			return arma_ext::rand<T>(n, n);
+	}
+	
+	/**
+	 *	@brief	Normally distributed pseudorandom numbers.
+	 *	@return	A pseudorandom value drawn from the standard normal distribution.
+	 */
+	template <typename T>
+	inline typename std::enable_if<std::is_floating_point<T>::value, T>::type randn()
+	{
+#ifdef ARMA_EXT_USE_CPP11
+		static std::normal_distribution<T> nr;
+		T value = nr(eng);
+		nr(eng);
+		return value;
+#else
+		return arma::randn<T>();
+#endif
+	}
+
+	/**
+	 *	@brief	Normally distributed pseudorandom numbers.
+	 *	@param rows the number of rows.
+	 *	@param cols the number of columns.
+	 *	@return	A rows-by-cols matrix containing pseudorandom values drawn from the standard normal distribution.
+	 */
+	template <typename T>
+	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type rows, const size_type cols)
+	{
+#ifdef ARMA_EXT_USE_CPP11
+		T out(rows, cols);
+        out.imbue(&randn<typename T::elem_type>);
+		return out;
+#else
+		return arma::randn<T>(rows, cols);
+#endif
+	}
+	
+	/**
+	 *	@brief	Overloaded function for randn.
+	 *	@return A \f$n\f$-by-\f$n\f$ matrix containing pseudorandom values drawn from the standard normal distribution.
+	 */
+	template <typename T>
+	inline typename std::enable_if<arma::is_arma_type<T>::value, T>::type randn(const size_type n)
+	{
+		if (T::is_col)
+			return arma_ext::randn<T>(n, 1);
+		else if (T::is_row)
+			return arma_ext::randn<T>(1, n);
+		else
+			return arma_ext::randn<T>(n, n);
+	}
 
 	/**
 	 *	@brief	Random permutation.
@@ -107,7 +210,7 @@ namespace arma_ext
                                   
 #endif
 
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 		std::stable_sort(pairs.begin(), pairs.end(),
                          [&](const std::pair<size_t, double>& a, const std::pair<size_t, double>& b)->bool {
 			return b.second > a.second;
@@ -117,14 +220,14 @@ namespace arma_ext
 #endif
 
 		arma::uvec out(n);
-//#ifdef USE_CXX11
-//		auto itr = pairs.begin();
-//        out.imbue([&]() { return (itr++)->first; });
-//#else
+#ifdef ARMA_EXT_USE_CPP11
+		auto itr = pairs.begin();
+        out.imbue([&]() { return (itr++)->first; });
+#else
         std::vector<std::pair<arma_ext::size_type, double> >::iterator itr = pairs.begin();
         for (uword i = 0 ; i < out.n_elem ; i++)
             out[i] = (itr++)->first;
-//#endif
+#endif
 		
 		return out;
 	}

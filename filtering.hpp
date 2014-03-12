@@ -48,7 +48,7 @@ namespace arma_ext
 	/**
 	 *	Convolution types
 	 */
-#ifdef USE_CXX11
+#ifdef ARMA_EXT_USE_CPP11
 	enum convolution_type : uword
 #else
 	enum convolution_type

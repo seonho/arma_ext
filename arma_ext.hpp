@@ -40,6 +40,10 @@
 
 #include <armadillo>
 
+#if __cplusplus >= 201103L || _MSC_VER > 1500
+#define ARMA_EXT_USE_CPP11
+#endif
+
 /**
  *	@brief	An extension of armadillo library for MATLAB interface functions.
  *	@note	Partially implements MATLAB style function
@@ -50,15 +54,7 @@ namespace arma_ext
 	typedef arma::uword size_type;
 }
 
-#if defined(USE_CXX11)
-#include <type_traits>
-#elif defined(USE_TR1)
-#include "type_traits_tr1.hpp"
-#elif defined(USE_BOOST)
-#include "type_traits_boost.hpp"
-#else
-#include "type_traits_no.hpp"
-#endif
+#include "std_type_traits_interop.hpp"
 
 #include "fundamentals.hpp"	// fundamentals
 #include "mathematics.hpp"	// mathematics
