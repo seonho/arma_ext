@@ -65,5 +65,5 @@ namespace arma_ext
 
 // precision loss correction
 #include "fix_fn_accu.hpp"
-#include "fix_op_dot.hpp"
+//#include "fix_op_dot.hpp"
 #include "fix_arrayop.hpp"

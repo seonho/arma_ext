@@ -81,7 +81,7 @@ namespace arma_ext
 		typedef typename vec_type::elem_type elem_type;
 		typedef Mat<elem_type> mat_type;
 		const uword n = c.n_elem - 1;
-		mat_type A = arma_ext::diag(ones<vec_type>(n - 1, 1), -1);
+		mat_type A = arma_ext::diag(ones<Col<elem_type> >(n - 1, 1), -1);
 		A.row(0) = -c(span(1, n)) / c[0];
 		eig_gen(eigval, eigvec, A);
 	}
