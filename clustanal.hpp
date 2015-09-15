@@ -241,7 +241,11 @@ namespace arma_ext
 			todo(rows).fill(0);
 		}
 
-		return unique(T);
+		uvec U = unique(T);
+		// re-assign
+		for (uword i = 0; i < U.n_elem; i++)
+			T.elem(find(T == U.at(i))).fill(i + 1);
+		return T;
 	}
 
 	/**
