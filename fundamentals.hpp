@@ -7,7 +7,7 @@
  *
  *	@section	LICENSE
  *
- *		Copyright (c) 2007-2014, Seonho Oh
+ *		Copyright (c) 2013-2015, Seonho Oh
  *		All rights reserved. 
  * 
  *		Redistribution and use in source and binary forms, with or without  
@@ -171,6 +171,8 @@ namespace arma_ext
 	template<typename T>
 	inline arma::urowvec size(const arma::Mat<T>& x)
 	{
+		static_assert(ARMA_VERSION_MAJOR <= 5 && ARMA_VERSION_MINOR < 500, "This function is deprecated. Use arma::size instead.");
+
 		arma::urowvec siz(2);
 		siz[0] = x.n_rows; siz[1] = x.n_cols;
 		return siz;
@@ -180,6 +182,8 @@ namespace arma_ext
 	template <typename T>
 	inline size_type size(const arma::Mat<T>& x, size_type dim)
 	{
+		static_assert(ARMA_VERSION_MAJOR <= 5 && ARMA_VERSION_MINOR < 500, "This function is deprecated. Use arma::size instead.");
+
 		switch (dim) {
 		case 0:
 			return x.n_rows;
@@ -194,6 +198,8 @@ namespace arma_ext
 	template <typename T>
 	inline arma::urowvec size(const arma::Cube<T>& x)
 	{
+		static_assert(ARMA_VERSION_MAJOR <= 5 && ARMA_VERSION_MINOR < 500, "This function is deprecated. Use arma::size instead.");
+
 		arma::urowvec siz(3);
 		siz[0] = x.n_rows; siz[1] = x.n_cols; siz[2] = x.n_slices;
 		return siz;

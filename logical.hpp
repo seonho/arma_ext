@@ -7,7 +7,7 @@
  *
  *	@section	LICENSE
  *
- *		Copyright (c) 2007-2014, Seonho Oh
+ *		Copyright (c) 2013-2015, Seonho Oh
  *		All rights reserved. 
  * 
  *		Redistribution and use in source and binary forms, with or without  
@@ -39,6 +39,7 @@
 #pragma once
 
 #include "mpl.hpp"
+#include <cassert>
 
 namespace arma_ext
 {
@@ -56,17 +57,6 @@ namespace arma_ext
 	//!	@brief		True or false (Boolean) conditions.
 	//!	@ingroup	ops
 	//! @{
-
-	/**
-	 *	@brief	Determine whether any matrix elements are nonzero
-	 *	@param	m the input matrix
-	 *	@return	true / false
-	 *	@see	http://www.mathworks.co.kr/kr/help/matlab/ref/any.html
-	 */
-	inline bool any(const umat& m)
-	{
-		return arma::any(arma::any(m));
-	}
 
 	/**
 	 *	@brief	Array elements that are NaN

@@ -7,7 +7,7 @@
  *
  *	@section	LICENSE
  *
- *		Copyright (c) 2007-2014, Seonho Oh
+ *		Copyright (c) 2013-2015, Seonho Oh
  *		All rights reserved. 
  * 
  *		Redistribution and use in source and binary forms, with or without  
@@ -57,6 +57,8 @@ namespace arma_ext
 	template <typename mat_type>
 	mat_type null(const mat_type& A)
 	{
+		static_assert(ARMA_VERSION_MAJOR <= 5 && ARMA_VERSION_MINOR < 400, "This function is deprecated. Use arma::null instead.");
+
 		typedef typename mat_type::elem_type elem_type;
 
 		const uword m = A.n_rows,
