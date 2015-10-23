@@ -248,6 +248,26 @@ namespace arma_ext
 		return X;
 	}
 
+	//! @brief	Sort array rows.
+	//!	@param X A Input array (column vector | matrix).
+	//!	@param column A column to sort by.
+	template <typename vec_type>
+	inline vec_type sortrows(const vec_type& X, arma::uword column)
+	{
+		return X.rows(arma::stable_sort_index(X.col(column)));
+	}
+
+	//! @brief	Sort array rows.
+	//!	@param X A Input array (column vector | matrix).
+	//!	@param column Column sorting vector, specified as a vector of integers. Each integer value indicates a column to sort by.
+	//!	@note	Not implemented yet
+	template <typename vec_type>
+	inline vec_type sortrows(const vec_type& X, arma::uvec column)
+	{
+		static_assert(true, "Not implemented yet.");
+		return vec_type;
+	}
+
 	//!	@}
 }
 

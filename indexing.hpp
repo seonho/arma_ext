@@ -63,7 +63,8 @@ namespace arma_ext
 	}
 
 	//!	Overloaded sub2ind for vectors
-	inline ucolvec sub2ind(size_type rows, size_type cols, ucolvec r, ucolvec c)
+	template <typename vec_type>
+	inline vec_type sub2ind(size_type rows, size_type cols, vec_type r, vec_type c, const typename arma_Mat_Col_Row_only<vec_type>::result* junk = 0)
 	{
 		//assert(r < rows && c < cols);
 		return r + rows * c;
@@ -86,6 +87,14 @@ namespace arma_ext
 	{
 		urowvec2 out;
 		out[0] = ind % rows; out[1] = ind / rows;
+		return out;
+	}
+
+	inline arma::umat ind2sub(const arma::SizeMat& siz, const arma::uvec& ndx)
+	{
+		arma::umat out(ndx.size(), 2);
+		out.col(0) = ndx / siz.n_rows;
+		out.col(1) = mod(ndx, siz.n_rows);
 		return out;
 	}
 
